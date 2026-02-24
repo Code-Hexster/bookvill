@@ -1,0 +1,153 @@
+/* ─── Library Page ───────────────────────────────────── */
+.library-page {
+    padding: 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.library-header {
+    margin-bottom: 32px;
+}
+
+.library-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.library-header p {
+    color: var(--text-muted);
+}
+
+/* Filter Bar */
+.filter-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 36px;
+}
+
+.filter-btn {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    color: var(--text-muted);
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.filter-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+/* Book Grid */
+.books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 24px;
+}
+
+.book-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: transform 0.2s, background 0.2s;
+    cursor: pointer;
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+    background: var(--bg-card-hover);
+}
+
+.book-cover-wrapper {
+    position: relative;
+}
+
+.book-cover {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    display: block;
+}
+
+.format-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.book-info {
+    padding: 14px;
+}
+
+.book-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.book-author {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+}
+
+.book-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.book-genre {
+    font-size: 0.72rem;
+    color: var(--accent);
+    font-weight: 600;
+    background: rgba(124, 106, 247, 0.12);
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.book-rating {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.btn-read {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border: none;
+    color: #fff;
+    padding: 8px;
+    border-radius: 7px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-read:hover {
+    opacity: 0.85;
+}
