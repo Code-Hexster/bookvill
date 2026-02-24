@@ -1,14 +1,15 @@
 const express = require("express");
 const router = express.Router();
 const { register, login, getMe } = require("../controllers/authController");
+const { protect } = require("../middleware/authMiddleware");
 
-// POST /api/auth/register
+// POST /api/auth/register  — public
 router.post("/register", register);
 
-// POST /api/auth/login
+// POST /api/auth/login     — public
 router.post("/login", login);
 
-// GET /api/auth/me  (protected - to be implemented with auth middleware)
-router.get("/me", getMe);
+// GET  /api/auth/me        — private (JWT required)
+router.get("/me", protect, getMe);
 
 module.exports = router;

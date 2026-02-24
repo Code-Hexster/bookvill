@@ -90,3 +90,22 @@
 .auth-switch a:hover {
     text-decoration: underline;
 }
+
+/* ─── Error message ──────────────────────────────── */
+.auth-error {
+    background: rgba(231, 76, 60, 0.12);
+    border: 1px solid rgba(231, 76, 60, 0.4);
+    color: #e74c3c;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+/* ─── Disabled button state ──────────────────────── */
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}

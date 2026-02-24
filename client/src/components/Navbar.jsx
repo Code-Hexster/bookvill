@@ -1,8 +1,16 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import "./Navbar.css";
 
 function Navbar() {
     const location = useLocation();
+    const navigate = useNavigate();
+    const { user, logout } = useAuth();
+
+    const handleLogout = () => {
+        logout();
+        navigate("/");
+    };
 
     return (
         <nav className="navbar">
@@ -15,14 +23,35 @@ function Navbar() {
                 <Link to="/" className={`nav-link ${location.pathname === "/" ? "active" : ""}`}>
                     Home
                 </Link>
-                <Link to="/library" className={`nav-link ${location.pathname === "/library" ? "active" : ""}`}>
-                    Library
-                </Link>
+                {user && (
+                    <Link to="/library" className={`nav-link ${location.pathname === "/library" ? "active" : ""}`}>
+                        Library
+                    </Link>
+                )}
             </div>
 
             <div className="navbar-auth">
-                <Link to="/login" className="btn-outline">Login</Link>
-                <Link to="/register" className="btn-primary">Sign Up</Link>
+                {user ? (
+                    // ── Logged in state ──
+                    <div className="user-menu">
+                        <div className="user-avatar">
+                            {user.avatar
+                                ? <img src={user.avatar} alt={user.username} />
+                                : <span className="avatar-initials">{user.username?.[0]?.toUpperCase()}</span>
+                            }
+                        </div>
+                        <span className="user-name">{user.username}</span>
+                        <button className="btn-outline btn-sm" onClick={handleLogout}>
+                            Logout
+                        </button>
+                    </div>
+                ) : (
+                    // ── Logged out state ──
+                    <>
+                        <Link to="/login" className="btn-outline">Login</Link>
+                        <Link to="/register" className="btn-primary">Sign Up</Link>
+                    </>
+                )}
             </div>
         </nav>
     );

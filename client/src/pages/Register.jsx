@@ -1,16 +1,42 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { registerUser } from "../services/api";
 import "./Auth.css";
 
 function Register() {
     const [form, setForm] = useState({ username: "", email: "", password: "" });
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+    const { login } = useAuth();
+    const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleChange = (e) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
+        setError("");
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // TODO: connect to /api/auth/register
-        console.log("Register payload:", form);
+        setLoading(true);
+        setError("");
+
+        if (form.password.length < 6) {
+            setError("Password must be at least 6 characters");
+            setLoading(false);
+            return;
+        }
+
+        try {
+            const data = await registerUser(form.username, form.email, form.password);
+            login(data); // auto-login after register
+            navigate("/library");
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -21,6 +47,8 @@ function Register() {
                     <h1>Create Account</h1>
                     <p>Join BookVill and start reading</p>
                 </div>
+
+                {error && <div className="auth-error">{error}</div>}
 
                 <form className="auth-form" onSubmit={handleSubmit}>
                     <div className="form-group">
@@ -62,7 +90,9 @@ function Register() {
                         />
                     </div>
 
-                    <button type="submit" className="btn-primary btn-full">Create Account</button>
+                    <button type="submit" className="btn-primary btn-full" disabled={loading}>
+                        {loading ? "Creating account..." : "Create Account"}
+                    </button>
                 </form>
 
                 <p className="auth-switch">
