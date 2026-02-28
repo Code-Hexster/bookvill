@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Library from "./pages/Library";
+import Reader from "./pages/Reader";
 import "./App.css";
 
 function App() {
@@ -25,6 +26,15 @@ function App() {
             element={
               <PrivateRoute>
                 <Library />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/read/:bookId"
+            element={
+              <PrivateRoute>
+                <Reader />
               </PrivateRoute>
             }
           />

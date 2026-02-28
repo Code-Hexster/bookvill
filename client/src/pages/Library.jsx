@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Library.css";
 
 const MOCK_BOOKS = [
@@ -24,6 +25,7 @@ const FORMAT_COLORS = {
 const CATEGORIES = ["All", "Manga", "Manhwa", "Novel", "Light Novel", "Manhua"];
 
 function Library() {
+    const navigate = useNavigate();
     const [search, setSearch] = useState("");
     const [activeCategory, setActiveCategory] = useState("All");
     const [sortBy, setSortBy] = useState("default");
@@ -122,7 +124,10 @@ function Library() {
                                     <span className="book-genre">{book.genre}</span>
                                     <span className="book-rating">⭐ {book.rating}</span>
                                 </div>
-                                <button className="btn-read">Read Now</button>
+                                <button
+                                    className="btn-read"
+                                    onClick={() => navigate(`/read/${book.id}`)}
+                                >Read Now</button>
                             </div>
                         </div>
                     ))}
