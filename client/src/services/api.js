@@ -40,3 +40,21 @@ export const fetchCurrentUser = async () => {
     if (!res.ok) throw new Error(data.message || "Unauthorized");
     return data;
 };
+
+// ── Chapters ───────────────────────────────────────────────────
+export const fetchChaptersByBook = async (bookId) => {
+    const res = await fetch(`${API_BASE}/chapters/book/${bookId}`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to fetch chapters");
+    return data; // array of { chapterNumber, title, ... }
+};
+
+export const fetchChapter = async (bookId, chapterNumber) => {
+    const res = await fetch(
+        `${API_BASE}/chapters/book/${bookId}/chapter/${chapterNumber}`,
+        { headers: authHeaders() }
+    );
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to fetch chapter");
+    return data; // { chapter, navigation: { prev, next } }
+};

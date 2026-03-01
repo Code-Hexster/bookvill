@@ -126,7 +126,7 @@ function Library() {
                                 </div>
                                 <button
                                     className="btn-read"
-                                    onClick={() => navigate(`/read/${book.id}`)}
+                                    onClick={() => navigate(`/read/${book.id}/1`)}
                                 >Read Now</button>
                             </div>
                         </div>

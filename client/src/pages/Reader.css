@@ -4,6 +4,71 @@
     transition: background 0.3s, color 0.3s;
 }
 
+/* Loading */
+.reader-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 120px 20px;
+    gap: 20px;
+    opacity: 0.5;
+}
+
+.reader-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Error */
+.reader-error {
+    text-align: center;
+    padding: 80px 20px;
+    opacity: 0.6;
+}
+
+/* Meta (word count / read time) */
+.reader-meta {
+    font-size: 0.78rem;
+    opacity: 0.45;
+    margin-bottom: 20px;
+    margin-top: -8px;
+}
+
+/* Book label above chapter title */
+.reader-book-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    opacity: 0.45;
+    margin-bottom: 10px;
+}
+
+/* Chapter badge in nav row */
+.reader-chapter-badge {
+    font-size: 0.8rem;
+    font-weight: 700;
+    opacity: 0.4;
+}
+
+/* Manga/manhwa page images */
+.reader-page-img {
+    width: 100%;
+    display: block;
+    margin-bottom: 4px;
+}
+
 /* Dark theme */
 .reader-dark {
     background: #12111a;

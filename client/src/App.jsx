@@ -31,7 +31,7 @@ function App() {
           />
 
           <Route
-            path="/read/:bookId"
+            path="/read/:bookId/:chapterNumber"
             element={
               <PrivateRoute>
                 <Reader />

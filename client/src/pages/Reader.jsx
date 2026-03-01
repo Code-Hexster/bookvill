@@ -1,75 +1,96 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { fetchChapter } from "../services/api";
 import "./Reader.css";
 
-const MOCK_CHAPTER = {
-    bookTitle: "Solo Leveling",
-    chapterTitle: "Chapter 1 — The Weakest Hunter",
-    content: `
-Ten years ago, a mysterious phenomenon called "The Gate" appeared, connecting the real world with a realm full of monsters. Since then, humans who possess the ability to enter these dungeons — known as "Hunters" — have emerged. Hunters must clear these dungeons before the monsters inside invade the real world.
+const FONT_SIZES = [14, 16, 18, 20, 22, 24];
+
+// Fallback mock for when backend has no chapters yet
+const FALLBACK = {
+    chapter: {
+        title: "Chapter 1 — The Weakest Hunter",
+        chapterNumber: 1,
+        content: `Ten years ago, a mysterious phenomenon called "The Gate" appeared, connecting the real world with a realm full of monsters. Since then, humans who possess the ability to enter these dungeons — known as "Hunters" — have emerged.
 
 Sung Jin-Woo is ranked at the very bottom of the hunter hierarchy: an E-rank hunter. Frail, weak, and barely capable of completing the simplest dungeons, he is mocked by those around him. Yet, he can't afford to quit — he needs the money to pay for his mother's hospital bills and to support his little sister.
 
-One fateful day, Jin-Woo joins a group of hunters on a seemingly routine D-rank dungeon raid. The dungeon, however, hides a terrifying secret — a hidden double dungeon. The surviving hunters are dragged into an ancient, deadly chamber filled with traps and riddles left by gods of a forgotten era.
-
-The chamber demands absolute devotion. Those who break the rules are killed. With no way out and hunters dying around him, Jin-Woo throws himself in front of a deadly blow to protect the remaining survivors.
+One fateful day, Jin-Woo joins a group of hunters on a seemingly routine D-rank dungeon raid. The dungeon, however, hides a terrifying secret — a hidden double dungeon. The surviving hunters are dragged into an ancient, deadly chamber.
 
 On the brink of death, a blue system window appears before his eyes — only visible to him.
 
 [You have been selected as the Player.]
 
-The game has just begun. And for the first time in his life, Sung Jin-Woo smiles.
-
-He doesn't know what the system wants from him. He doesn't know why he was chosen. But one thing is certain — he is no longer alone in this fight. And this time, he will not stop growing.
-
-The stone floor beneath him is cold. Blood pools around his fingers. The countdown timer on the system interface reads 5 seconds. Jin-Woo closes his eyes.
-
-When he opens them, the dungeon is gone. He is lying in a hospital bed, sunlight streaming through white curtains. His body feels... different. Heavier. Stronger. A familiar blue window hovers at the edge of his vision:
-
-[Daily Quest: 100 push-ups, 100 sit-ups, 100 squats, 10 km run.]
-
-He sits up, cracks his knuckles, and gets to work.
-    `.trim(),
+The game has just begun. And for the first time in his life, Sung Jin-Woo smiles.`,
+        wordCount: 0,
+    },
+    navigation: { prev: null, next: null },
 };
 
-const FONT_SIZES = [14, 16, 18, 20, 22, 24];
-
 function Reader() {
+    const { bookId, chapterNumber } = useParams();
+    const navigate = useNavigate();
+
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [isDark, setIsDark] = useState(true);
-    const [fontSizeIdx, setFontSizeIdx] = useState(2); // default 18px
+    const [fontSizeIdx, setFontSizeIdx] = useState(2);
 
     const fontSize = FONT_SIZES[fontSizeIdx];
+    const currentChapter = parseInt(chapterNumber) || 1;
+
+    const load = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const result = await fetchChapter(bookId, currentChapter);
+            setData(result);
+        } catch (err) {
+            // Use fallback mock if API is unreachable or no chapters exist
+            console.warn("Chapter API unavailable, using mock data:", err.message);
+            setData(FALLBACK);
+        } finally {
+            setLoading(false);
+        }
+    }, [bookId, currentChapter]);
+
+    useEffect(() => {
+        load();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }, [load]);
+
+    const goToChapter = (num) => {
+        navigate(`/read/${bookId}/${num}`);
+    };
+
+    const chapter = data?.chapter;
+    const nav = data?.navigation;
 
     return (
         <div className={`reader-page ${isDark ? "reader-dark" : "reader-light"}`}>
-            {/* Top Toolbar */}
+            {/* Toolbar */}
             <div className="reader-toolbar">
-                <button className="reader-back-btn" onClick={() => window.history.back()}>
+                <button className="reader-back-btn" onClick={() => navigate(-1)}>
                     ← Back
                 </button>
 
                 <div className="reader-controls">
-                    {/* Font size control */}
                     <div className="font-control">
                         <button
                             className="font-btn"
                             onClick={() => setFontSizeIdx((i) => Math.max(0, i - 1))}
                             disabled={fontSizeIdx === 0}
                             title="Decrease font size"
-                        >
-                            A−
-                        </button>
+                        >A−</button>
                         <span className="font-size-label">{fontSize}px</span>
                         <button
                             className="font-btn"
                             onClick={() => setFontSizeIdx((i) => Math.min(FONT_SIZES.length - 1, i + 1))}
                             disabled={fontSizeIdx === FONT_SIZES.length - 1}
                             title="Increase font size"
-                        >
-                            A+
-                        </button>
+                        >A+</button>
                     </div>
 
-                    {/* Dark / Light toggle */}
                     <button
                         className="theme-toggle"
                         onClick={() => setIsDark((d) => !d)}
@@ -80,25 +101,65 @@ function Reader() {
                 </div>
             </div>
 
-            {/* Reading Area */}
+            {/* Content */}
             <div className="reader-container">
-                <p className="reader-book-title">{MOCK_CHAPTER.bookTitle}</p>
-                <h1 className="reader-chapter-title">{MOCK_CHAPTER.chapterTitle}</h1>
-                <div className="reader-divider" />
-                <div
-                    className="reader-content"
-                    style={{ fontSize: `${fontSize}px`, lineHeight: fontSize < 18 ? "1.75" : "1.9" }}
-                >
-                    {MOCK_CHAPTER.content.split("\n\n").map((para, i) => (
-                        <p key={i}>{para}</p>
-                    ))}
-                </div>
+                {loading ? (
+                    <div className="reader-loading">
+                        <div className="reader-spinner" />
+                        <p>Loading chapter...</p>
+                    </div>
+                ) : error ? (
+                    <div className="reader-error">
+                        <p>⚠️ {error}</p>
+                        <button className="reader-nav-btn" onClick={load}>Retry</button>
+                    </div>
+                ) : (
+                    <>
+                        <p className="reader-book-label">Chapter {chapter?.chapterNumber}</p>
+                        <h1 className="reader-chapter-title">{chapter?.title}</h1>
+                        {chapter?.wordCount > 0 && (
+                            <p className="reader-meta">
+                                {chapter.wordCount.toLocaleString()} words ·{" "}
+                                ~{Math.ceil(chapter.wordCount / 200)} min read
+                            </p>
+                        )}
+                        <div className="reader-divider" />
 
-                {/* Chapter Navigation */}
-                <div className="reader-nav">
-                    <button className="reader-nav-btn" disabled>← Prev Chapter</button>
-                    <button className="reader-nav-btn">Next Chapter →</button>
-                </div>
+                        <div
+                            className="reader-content"
+                            style={{ fontSize: `${fontSize}px`, lineHeight: fontSize < 18 ? "1.75" : "1.9" }}
+                        >
+                            {chapter?.content
+                                ? chapter.content.split("\n\n").map((para, i) => (
+                                    <p key={i}>{para}</p>
+                                ))
+                                : chapter?.pages?.map((url, i) => (
+                                    <img key={i} src={url} alt={`Page ${i + 1}`} className="reader-page-img" />
+                                ))}
+                        </div>
+
+                        {/* Chapter Navigation */}
+                        <div className="reader-nav">
+                            <button
+                                className="reader-nav-btn"
+                                disabled={!nav?.prev}
+                                onClick={() => nav?.prev && goToChapter(nav.prev.chapterNumber)}
+                            >
+                                ← {nav?.prev ? `Ch. ${nav.prev.chapterNumber}` : "No Previous"}
+                            </button>
+
+                            <span className="reader-chapter-badge">Ch. {chapter?.chapterNumber}</span>
+
+                            <button
+                                className="reader-nav-btn"
+                                disabled={!nav?.next}
+                                onClick={() => nav?.next && goToChapter(nav.next.chapterNumber)}
+                            >
+                                {nav?.next ? `Ch. ${nav.next.chapterNumber}` : "No Next"} →
+                            </button>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );
