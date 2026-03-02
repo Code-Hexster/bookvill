@@ -106,18 +106,6 @@ This fragmentation means:
 
 ---
 
-## 🗺️ Roadmap
-
-- [x] Day 1 — Idea Clarity + Feature Planning
-- [ ] Day 2 — UI/UX Wireframes
-- [ ] Day 3 — Project Setup (Frontend + Backend)
-- [ ] Day 4 — Authentication System
-- [ ] Day 5 — Book Library + Reader UI
-- [ ] Day 6 — Search + Categories
-- [ ] Day 7 — Bookmarks + Progress Tracking
-- [ ] Day 8+ — Testing, Polish, Deployment
-
----
 
 ## 📁 Project Structure (Planned)
 
