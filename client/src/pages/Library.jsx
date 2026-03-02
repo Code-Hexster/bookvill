@@ -1,5 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { fetchMyBookmarks } from "../services/api";
 import "./Library.css";
 
 const MOCK_BOOKS = [
@@ -29,6 +30,14 @@ function Library() {
     const [search, setSearch] = useState("");
     const [activeCategory, setActiveCategory] = useState("All");
     const [sortBy, setSortBy] = useState("default");
+    const [continueReading, setContinueReading] = useState([]);
+
+    // Fetch bookmarks for Continue Reading section
+    useEffect(() => {
+        fetchMyBookmarks()
+            .then((bms) => setContinueReading(bms.filter((b) => b.readingStatus === "reading").slice(0, 6)))
+            .catch(() => { }); // silently fail if not logged in
+    }, []);
 
     const displayedBooks = useMemo(() => {
         let books = [...MOCK_BOOKS];
@@ -58,6 +67,34 @@ function Library() {
                 <h1>📚 Book Library</h1>
                 <p>Discover novels, manga, manhwa, and more</p>
             </div>
+
+            {/* Continue Reading */}
+            {continueReading.length > 0 && (
+                <section className="continue-section">
+                    <h2 className="continue-title">🔖 Continue Reading</h2>
+                    <div className="continue-list">
+                        {continueReading.map((bm) => (
+                            <div key={bm._id} className="continue-card">
+                                <img
+                                    src={bm.book?.coverImage || `https://picsum.photos/seed/${bm.book?._id}/60/84`}
+                                    alt={bm.book?.title}
+                                    className="continue-cover"
+                                />
+                                <div className="continue-info">
+                                    <p className="continue-book-title">{bm.book?.title}</p>
+                                    <p className="continue-chapter">Chapter {bm.lastChapterNumber}</p>
+                                    <button
+                                        className="btn-continue"
+                                        onClick={() => navigate(`/read/${bm.book?._id}/${bm.lastChapterNumber}`)}
+                                    >
+                                        Continue →
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            )}
 
             {/* Search + Sort Row */}
             <div className="library-controls">

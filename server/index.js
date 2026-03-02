@@ -22,6 +22,7 @@ app.use("/api/books", require("./routes/bookRoutes"));
 app.use("/api/categories", require("./routes/categoryRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/chapters", require("./routes/chapterRoutes"));
+app.use("/api/bookmarks", require("./routes/bookmarkRoutes"));
 
 // ─── Health check ────────────────────────────────────────────
 app.get("/", (req, res) => {

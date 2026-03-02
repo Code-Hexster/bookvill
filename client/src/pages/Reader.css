@@ -127,6 +127,33 @@
     gap: 18px;
 }
 
+/* Saved progress indicator */
+.saved-indicator {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #2ecc71;
+    opacity: 0.85;
+    animation: fadeInOut 2.5s ease forwards;
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 0.9;
+    }
+
+    75% {
+        opacity: 0.9;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
 /* Font size controls */
 .font-control {
     display: flex;

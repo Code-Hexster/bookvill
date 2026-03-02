@@ -58,3 +58,41 @@ export const fetchChapter = async (bookId, chapterNumber) => {
     if (!res.ok) throw new Error(data.message || "Failed to fetch chapter");
     return data; // { chapter, navigation: { prev, next } }
 };
+
+// ── Bookmarks ──────────────────────────────────────────────────
+export const fetchMyBookmarks = async () => {
+    const res = await fetch(`${API_BASE}/bookmarks`, { headers: authHeaders() });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to fetch bookmarks");
+    return data; // array sorted by lastReadAt desc
+};
+
+export const fetchBookmarkByBook = async (bookId) => {
+    const res = await fetch(`${API_BASE}/bookmarks/${bookId}`, { headers: authHeaders() });
+    if (res.status === 404) return null;
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to fetch bookmark");
+    return data;
+};
+
+export const saveProgress = async (bookId, { lastChapterNumber, chapterId, position, readingStatus }) => {
+    const res = await fetch(`${API_BASE}/bookmarks/${bookId}`, {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ lastChapterNumber, chapterId, position, readingStatus }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to save progress");
+    return data;
+};
+
+export const deleteBookmark = async (bookId) => {
+    const res = await fetch(`${API_BASE}/bookmarks/${bookId}`, {
+        method: "DELETE",
+        headers: authHeaders(),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to delete bookmark");
+    return data;
+};
+

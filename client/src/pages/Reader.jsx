@@ -1,11 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchChapter } from "../services/api";
+import { fetchChapter, saveProgress } from "../services/api";
 import "./Reader.css";
 
 const FONT_SIZES = [14, 16, 18, 20, 22, 24];
 
-// Fallback mock for when backend has no chapters yet
 const FALLBACK = {
     chapter: {
         title: "Chapter 1 — The Weakest Hunter",
@@ -14,7 +13,7 @@ const FALLBACK = {
 
 Sung Jin-Woo is ranked at the very bottom of the hunter hierarchy: an E-rank hunter. Frail, weak, and barely capable of completing the simplest dungeons, he is mocked by those around him. Yet, he can't afford to quit — he needs the money to pay for his mother's hospital bills and to support his little sister.
 
-One fateful day, Jin-Woo joins a group of hunters on a seemingly routine D-rank dungeon raid. The dungeon, however, hides a terrifying secret — a hidden double dungeon. The surviving hunters are dragged into an ancient, deadly chamber.
+One fateful day, Jin-Woo joins a group of hunters on a seemingly routine D-rank dungeon raid. The dungeon, however, hides a terrifying secret — a hidden double dungeon.
 
 On the brink of death, a blue system window appears before his eyes — only visible to him.
 
@@ -32,22 +31,32 @@ function Reader() {
 
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [isDark, setIsDark] = useState(true);
     const [fontSizeIdx, setFontSizeIdx] = useState(2);
+    const [saved, setSaved] = useState(false);
 
     const fontSize = FONT_SIZES[fontSizeIdx];
     const currentChapter = parseInt(chapterNumber) || 1;
 
     const load = useCallback(async () => {
         setLoading(true);
-        setError(null);
+        setSaved(false);
         try {
             const result = await fetchChapter(bookId, currentChapter);
             setData(result);
-        } catch (err) {
-            // Use fallback mock if API is unreachable or no chapters exist
-            console.warn("Chapter API unavailable, using mock data:", err.message);
+
+            // Auto-save progress to backend
+            try {
+                await saveProgress(bookId, {
+                    lastChapterNumber: result.chapter.chapterNumber,
+                    chapterId: result.chapter._id || null,
+                });
+                setSaved(true);
+                setTimeout(() => setSaved(false), 2500);
+            } catch {
+                // Silently fail — progress save is non-critical
+            }
+        } catch {
             setData(FALLBACK);
         } finally {
             setLoading(false);
@@ -75,26 +84,26 @@ function Reader() {
                 </button>
 
                 <div className="reader-controls">
+                    {/* Saved indicator */}
+                    {saved && <span className="saved-indicator">✓ Progress saved</span>}
+
                     <div className="font-control">
                         <button
                             className="font-btn"
                             onClick={() => setFontSizeIdx((i) => Math.max(0, i - 1))}
                             disabled={fontSizeIdx === 0}
-                            title="Decrease font size"
                         >A−</button>
                         <span className="font-size-label">{fontSize}px</span>
                         <button
                             className="font-btn"
                             onClick={() => setFontSizeIdx((i) => Math.min(FONT_SIZES.length - 1, i + 1))}
                             disabled={fontSizeIdx === FONT_SIZES.length - 1}
-                            title="Increase font size"
                         >A+</button>
                     </div>
 
                     <button
                         className="theme-toggle"
                         onClick={() => setIsDark((d) => !d)}
-                        title="Toggle theme"
                     >
                         {isDark ? "☀️ Light" : "🌙 Dark"}
                     </button>
@@ -107,11 +116,6 @@ function Reader() {
                     <div className="reader-loading">
                         <div className="reader-spinner" />
                         <p>Loading chapter...</p>
-                    </div>
-                ) : error ? (
-                    <div className="reader-error">
-                        <p>⚠️ {error}</p>
-                        <button className="reader-nav-btn" onClick={load}>Retry</button>
                     </div>
                 ) : (
                     <>
