@@ -20,7 +20,7 @@ On the brink of death, a blue system window appears before his eyes — only vis
 [You have been selected as the Player.]
 
 The game has just begun. And for the first time in his life, Sung Jin-Woo smiles.`,
-        wordCount: 0,
+        wordCount: 154,
     },
     navigation: { prev: null, next: null },
 };
@@ -35,6 +35,10 @@ function Reader() {
     const [fontSizeIdx, setFontSizeIdx] = useState(2);
     const [saved, setSaved] = useState(false);
 
+    // Reading Modes State
+    const [readMode, setReadMode] = useState("scroll"); // 'scroll' or 'paged'
+    const [pageIndex, setPageIndex] = useState(0);
+
     const fontSize = FONT_SIZES[fontSizeIdx];
     const currentChapter = parseInt(chapterNumber) || 1;
 
@@ -44,8 +48,6 @@ function Reader() {
         try {
             const result = await fetchChapter(bookId, currentChapter);
             setData(result);
-
-            // Auto-save progress to backend
             try {
                 await saveProgress(bookId, {
                     lastChapterNumber: result.chapter.chapterNumber,
@@ -54,7 +56,7 @@ function Reader() {
                 setSaved(true);
                 setTimeout(() => setSaved(false), 2500);
             } catch {
-                // Silently fail — progress save is non-critical
+                // Silently fail
             }
         } catch {
             setData(FALLBACK);
@@ -65,15 +67,51 @@ function Reader() {
 
     useEffect(() => {
         load();
+        setPageIndex(0);
         window.scrollTo({ top: 0, behavior: "smooth" });
     }, [load]);
 
-    const goToChapter = (num) => {
-        navigate(`/read/${bookId}/${num}`);
-    };
+    // Reset pagination cleanly when mode changes
+    useEffect(() => {
+        setPageIndex(0);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }, [readMode]);
 
     const chapter = data?.chapter;
     const nav = data?.navigation;
+
+    // Computation for Pages
+    const isNovel = !!chapter?.content;
+    const parasPerPage = 6;
+    let paragraphs = [];
+    let totalPages = 1;
+
+    if (chapter) {
+        if (isNovel) {
+            paragraphs = chapter.content.split("\n\n").filter(p => p.trim() !== "");
+            totalPages = Math.ceil(paragraphs.length / parasPerPage);
+        } else {
+            totalPages = chapter.pages?.length || 1;
+        }
+    }
+
+    const handleNext = () => {
+        if (readMode === "paged" && pageIndex < totalPages - 1) {
+            setPageIndex(p => p + 1);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        } else if (nav?.next) {
+            navigate(`/read/${bookId}/${nav.next.chapterNumber}`);
+        }
+    };
+
+    const handlePrev = () => {
+        if (readMode === "paged" && pageIndex > 0) {
+            setPageIndex(p => p - 1);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        } else if (nav?.prev) {
+            navigate(`/read/${bookId}/${nav.prev.chapterNumber}`);
+        }
+    };
 
     return (
         <div className={`reader-page ${isDark ? "reader-dark" : "reader-light"}`}>
@@ -84,22 +122,30 @@ function Reader() {
                 </button>
 
                 <div className="reader-controls">
-                    {/* Saved indicator */}
                     {saved && <span className="saved-indicator">✓ Progress saved</span>}
 
-                    <div className="font-control">
-                        <button
-                            className="font-btn"
-                            onClick={() => setFontSizeIdx((i) => Math.max(0, i - 1))}
-                            disabled={fontSizeIdx === 0}
-                        >A−</button>
-                        <span className="font-size-label">{fontSize}px</span>
-                        <button
-                            className="font-btn"
-                            onClick={() => setFontSizeIdx((i) => Math.min(FONT_SIZES.length - 1, i + 1))}
-                            disabled={fontSizeIdx === FONT_SIZES.length - 1}
-                        >A+</button>
-                    </div>
+                    <button
+                        className="mode-toggle"
+                        onClick={() => setReadMode(m => m === "scroll" ? "paged" : "scroll")}
+                    >
+                        {readMode === "scroll" ? "↕️ Scroll Mode" : "📖 Paged Mode"}
+                    </button>
+
+                    {isNovel && (
+                        <div className="font-control">
+                            <button
+                                className="font-btn"
+                                onClick={() => setFontSizeIdx((i) => Math.max(0, i - 1))}
+                                disabled={fontSizeIdx === 0}
+                            >A−</button>
+                            <span className="font-size-label">{fontSize}px</span>
+                            <button
+                                className="font-btn"
+                                onClick={() => setFontSizeIdx((i) => Math.min(FONT_SIZES.length - 1, i + 1))}
+                                disabled={fontSizeIdx === FONT_SIZES.length - 1}
+                            >A+</button>
+                        </div>
+                    )}
 
                     <button
                         className="theme-toggle"
@@ -119,47 +165,78 @@ function Reader() {
                     </div>
                 ) : (
                     <>
-                        <p className="reader-book-label">Chapter {chapter?.chapterNumber}</p>
-                        <h1 className="reader-chapter-title">{chapter?.title}</h1>
-                        {chapter?.wordCount > 0 && (
-                            <p className="reader-meta">
-                                {chapter.wordCount.toLocaleString()} words ·{" "}
-                                ~{Math.ceil(chapter.wordCount / 200)} min read
-                            </p>
-                        )}
-                        <div className="reader-divider" />
+                        <div className="reader-header">
+                            <p className="reader-book-label">Chapter {chapter?.chapterNumber}</p>
+                            <h1 className="reader-chapter-title">{chapter?.title || `Chapter ${chapter?.chapterNumber}`}</h1>
+                            {chapter?.wordCount > 0 && (
+                                <p className="reader-meta">
+                                    {chapter.wordCount.toLocaleString()} words ·{" "}
+                                    ~{Math.ceil(chapter.wordCount / 200)} min read
+                                </p>
+                            )}
+                            {readMode === "paged" && (
+                                <p className="reader-meta-page">
+                                    Page {pageIndex + 1} of {totalPages}
+                                </p>
+                            )}
+                            <div className="reader-divider" />
+                        </div>
 
                         <div
-                            className="reader-content"
-                            style={{ fontSize: `${fontSize}px`, lineHeight: fontSize < 18 ? "1.75" : "1.9" }}
+                            className={`reader-content mode-${readMode}`}
+                            style={isNovel ? { fontSize: `${fontSize}px`, lineHeight: fontSize < 18 ? "1.75" : "1.9" } : {}}
                         >
-                            {chapter?.content
-                                ? chapter.content.split("\n\n").map((para, i) => (
-                                    <p key={i}>{para}</p>
-                                ))
-                                : chapter?.pages?.map((url, i) => (
-                                    <img key={i} src={url} alt={`Page ${i + 1}`} className="reader-page-img" />
-                                ))}
+                            {isNovel ? (
+                                // NOVEL RENDERING
+                                readMode === "scroll" ? (
+                                    paragraphs.map((para, i) => <p key={i}>{para}</p>)
+                                ) : (
+                                    <div key={pageIndex} className="paged-text-container">
+                                        {paragraphs.slice(pageIndex * parasPerPage, (pageIndex + 1) * parasPerPage).map((para, i) => (
+                                            <p key={i}>{para}</p>
+                                        ))}
+                                    </div>
+                                )
+                            ) : (
+                                // MANGA RENDERING
+                                readMode === "scroll" ? (
+                                    chapter?.pages?.map((url, i) => (
+                                        <img key={i} src={url} alt={`Page ${i + 1}`} className="reader-page-img" />
+                                    ))
+                                ) : (
+                                    <div key={pageIndex} className="paged-image-container">
+                                        <img
+                                            src={chapter?.pages?.[pageIndex]}
+                                            alt={`Page ${pageIndex + 1}`}
+                                            className="reader-page-img-single"
+                                        />
+                                        <div className="manga-nav-overlay">
+                                            <div className="manga-nav-left" onClick={(e) => { e.stopPropagation(); handlePrev(); }} />
+                                            <div className="manga-nav-right" onClick={(e) => { e.stopPropagation(); handleNext(); }} />
+                                        </div>
+                                    </div>
+                                )
+                            )}
                         </div>
 
                         {/* Chapter Navigation */}
                         <div className="reader-nav">
                             <button
                                 className="reader-nav-btn"
-                                disabled={!nav?.prev}
-                                onClick={() => nav?.prev && goToChapter(nav.prev.chapterNumber)}
+                                disabled={!nav?.prev && (readMode === "scroll" || pageIndex === 0)}
+                                onClick={handlePrev}
                             >
-                                ← {nav?.prev ? `Ch. ${nav.prev.chapterNumber}` : "No Previous"}
+                                ← {readMode === "paged" && pageIndex > 0 ? "Prev Page" : nav?.prev ? `Ch. ${nav.prev.chapterNumber}` : "No Previous"}
                             </button>
 
                             <span className="reader-chapter-badge">Ch. {chapter?.chapterNumber}</span>
 
                             <button
                                 className="reader-nav-btn"
-                                disabled={!nav?.next}
-                                onClick={() => nav?.next && goToChapter(nav.next.chapterNumber)}
+                                disabled={!nav?.next && (readMode === "scroll" || pageIndex === totalPages - 1)}
+                                onClick={handleNext}
                             >
-                                {nav?.next ? `Ch. ${nav.next.chapterNumber}` : "No Next"} →
+                                {readMode === "paged" && pageIndex < totalPages - 1 ? "Next Page" : nav?.next ? `Ch. ${nav.next.chapterNumber}` : "No Next"} →
                             </button>
                         </div>
                     </>
