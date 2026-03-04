@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import HTMLFlipBook from "react-pageflip";
 import { fetchChapter, saveProgress } from "../services/api";
 import "./Reader.css";
 
@@ -25,6 +26,17 @@ The game has just begun. And for the first time in his life, Sung Jin-Woo smiles
     navigation: { prev: null, next: null },
 };
 
+// Single page component required by HTMLFlipBook
+const Page = React.forwardRef((props, ref) => {
+    return (
+        <div className="book-page" ref={ref} data-density="soft">
+            <div className="page-content">{props.children}</div>
+            <div className="page-footer">Page {props.number}</div>
+        </div>
+    );
+});
+Page.displayName = "Page";
+
 function Reader() {
     const { bookId, chapterNumber } = useParams();
     const navigate = useNavigate();
@@ -38,6 +50,8 @@ function Reader() {
     // Reading Modes State
     const [readMode, setReadMode] = useState("scroll"); // 'scroll' or 'paged'
     const [pageIndex, setPageIndex] = useState(0);
+
+    const flipBookRef = useRef(null);
 
     const fontSize = FONT_SIZES[fontSizeIdx];
     const currentChapter = parseInt(chapterNumber) || 1;
@@ -75,6 +89,13 @@ function Reader() {
     useEffect(() => {
         setPageIndex(0);
         window.scrollTo({ top: 0, behavior: "smooth" });
+        if (flipBookRef.current?.pageFlip()) {
+            try {
+                flipBookRef.current.pageFlip().turnToPage(0);
+            } catch (e) {
+                // ignore initialization errors
+            }
+        }
     }, [readMode]);
 
     const chapter = data?.chapter;
@@ -90,24 +111,41 @@ function Reader() {
         if (isNovel) {
             paragraphs = chapter.content.split("\n\n").filter(p => p.trim() !== "");
             totalPages = Math.ceil(paragraphs.length / parasPerPage);
+            // FlipBook needs an even number of pages ideally, but it handles odd gracefully mostly.
         } else {
             totalPages = chapter.pages?.length || 1;
         }
     }
 
+    const onFlip = useCallback((e) => {
+        setPageIndex(e.data); // e.data is current page index
+    }, []);
+
     const handleNext = () => {
-        if (readMode === "paged" && pageIndex < totalPages - 1) {
-            setPageIndex(p => p + 1);
-            window.scrollTo({ top: 0, behavior: "smooth" });
+        if (readMode === "paged") {
+            if (isNovel && flipBookRef.current?.pageFlip()) {
+                flipBookRef.current.pageFlip().flipNext();
+            } else if (!isNovel && pageIndex < totalPages - 1) {
+                setPageIndex(p => p + 1);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            } else if (nav?.next) {
+                navigate(`/read/${bookId}/${nav.next.chapterNumber}`);
+            }
         } else if (nav?.next) {
             navigate(`/read/${bookId}/${nav.next.chapterNumber}`);
         }
     };
 
     const handlePrev = () => {
-        if (readMode === "paged" && pageIndex > 0) {
-            setPageIndex(p => p - 1);
-            window.scrollTo({ top: 0, behavior: "smooth" });
+        if (readMode === "paged") {
+            if (isNovel && flipBookRef.current?.pageFlip()) {
+                flipBookRef.current.pageFlip().flipPrev();
+            } else if (!isNovel && pageIndex > 0) {
+                setPageIndex(p => p - 1);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            } else if (nav?.prev) {
+                navigate(`/read/${bookId}/${nav.prev.chapterNumber}`);
+            }
         } else if (nav?.prev) {
             navigate(`/read/${bookId}/${nav.prev.chapterNumber}`);
         }
@@ -174,7 +212,7 @@ function Reader() {
                                     ~{Math.ceil(chapter.wordCount / 200)} min read
                                 </p>
                             )}
-                            {readMode === "paged" && (
+                            {readMode === "paged" && !isNovel && (
                                 <p className="reader-meta-page">
                                     Page {pageIndex + 1} of {totalPages}
                                 </p>
@@ -191,10 +229,31 @@ function Reader() {
                                 readMode === "scroll" ? (
                                     paragraphs.map((para, i) => <p key={i}>{para}</p>)
                                 ) : (
-                                    <div key={pageIndex} className="paged-text-container">
-                                        {paragraphs.slice(pageIndex * parasPerPage, (pageIndex + 1) * parasPerPage).map((para, i) => (
-                                            <p key={i}>{para}</p>
-                                        ))}
+                                    <div className="flipbook-wrapper">
+                                        <HTMLFlipBook
+                                            width={350}
+                                            height={500}
+                                            size="stretch"
+                                            minWidth={315}
+                                            maxWidth={1000}
+                                            minHeight={400}
+                                            maxHeight={800}
+                                            maxShadowOpacity={0.5}
+                                            showCover={false}
+                                            mobileScrollSupport={true}
+                                            className="novel-flipbook"
+                                            ref={flipBookRef}
+                                            onFlip={onFlip}
+                                            usePortrait={true}
+                                        >
+                                            {Array.from({ length: totalPages }).map((_, i) => (
+                                                <Page number={i + 1} key={i}>
+                                                    {paragraphs.slice(i * parasPerPage, (i + 1) * parasPerPage).map((para, idx) => (
+                                                        <p key={idx}>{para}</p>
+                                                    ))}
+                                                </Page>
+                                            ))}
+                                        </HTMLFlipBook>
                                     </div>
                                 )
                             ) : (
@@ -226,17 +285,17 @@ function Reader() {
                                 disabled={!nav?.prev && (readMode === "scroll" || pageIndex === 0)}
                                 onClick={handlePrev}
                             >
-                                ← {readMode === "paged" && pageIndex > 0 ? "Prev Page" : nav?.prev ? `Ch. ${nav.prev.chapterNumber}` : "No Previous"}
+                                ← {readMode === "paged" && pageIndex > 0 ? "Prev Page" : (nav?.prev ? `Ch. ${nav.prev.chapterNumber}` : "No Previous")}
                             </button>
 
                             <span className="reader-chapter-badge">Ch. {chapter?.chapterNumber}</span>
 
                             <button
                                 className="reader-nav-btn"
-                                disabled={!nav?.next && (readMode === "scroll" || pageIndex === totalPages - 1)}
+                                disabled={!nav?.next && (readMode === "scroll" || pageIndex >= totalPages - 1)}
                                 onClick={handleNext}
                             >
-                                {readMode === "paged" && pageIndex < totalPages - 1 ? "Next Page" : nav?.next ? `Ch. ${nav.next.chapterNumber}` : "No Next"} →
+                                {readMode === "paged" && pageIndex < totalPages - 1 ? "Next Page" : (nav?.next ? `Ch. ${nav.next.chapterNumber}` : "No Next")} →
                             </button>
                         </div>
                     </>

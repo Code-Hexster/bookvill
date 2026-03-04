@@ -387,3 +387,59 @@
 .reader-dark .manga-nav-right:hover {
     background: rgba(255, 255, 255, 0.02);
 }
+
+/* ─── 3D Book Page Flip Mode (Novel) ────────── */
+.flipbook-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    width: 100%;
+}
+
+.novel-flipbook {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+}
+
+.book-page {
+    background-color: var(--bg-card);
+    overflow: hidden;
+    position: relative;
+    color: var(--text);
+    padding: 30px 40px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.reader-dark .book-page {
+    background-color: #1a1a24;
+    color: #e8e8f0;
+    border-color: rgba(255, 255, 255, 0.02);
+    box-shadow: inset -4px 0px 10px rgba(0, 0, 0, 0.2), inset 4px 0px 10px rgba(0, 0, 0, 0.2);
+}
+
+.reader-light .book-page {
+    background-color: #fcfbf7;
+    color: #2c2a3a;
+    border-color: rgba(0, 0, 0, 0.05);
+    box-shadow: inset -4px 0px 10px rgba(0, 0, 0, 0.04), inset 4px 0px 10px rgba(0, 0, 0, 0.04);
+}
+
+.page-content {
+    flex: 1;
+    overflow: hidden;
+}
+
+.page-content p {
+    margin-bottom: 1.4em !important;
+}
+
+.page-footer {
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    opacity: 0.4;
+    margin-top: 15px;
+    font-family: monospace;
+}
