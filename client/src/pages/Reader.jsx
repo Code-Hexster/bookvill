@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import HTMLFlipBook from "react-pageflip";
-import { fetchChapter, saveProgress } from "../services/api";
+import { fetchChapter, saveProgress, fetchBookmarkByBook } from "../services/api";
 import "./Reader.css";
 
 const FONT_SIZES = [14, 16, 18, 20, 22, 24];
@@ -62,16 +62,30 @@ function Reader() {
         try {
             const result = await fetchChapter(bookId, currentChapter);
             setData(result);
+
+            let initialPage = 0;
+            // Fetch bookmark to see if we should resume from a specific page
+            try {
+                const bkmk = await fetchBookmarkByBook(bookId);
+                // If the bookmark is on the *current* chapter, resume its exact page
+                if (bkmk && bkmk.lastChapterNumber === result.chapter.chapterNumber && bkmk.position?.page) {
+                    initialPage = bkmk.position.page;
+                }
+            } catch (e) {
+                // It's perfectly fine if no bookmark exists yet
+            }
+
+            setPageIndex(initialPage);
+
+            // Save initial view (creates bookmark if fresh)
             try {
                 await saveProgress(bookId, {
                     lastChapterNumber: result.chapter.chapterNumber,
                     chapterId: result.chapter._id || null,
+                    position: { page: initialPage }
                 });
-                setSaved(true);
-                setTimeout(() => setSaved(false), 2500);
-            } catch {
-                // Silently fail
-            }
+            } catch { }
+
         } catch {
             setData(FALLBACK);
         } finally {
@@ -81,22 +95,19 @@ function Reader() {
 
     useEffect(() => {
         load();
-        setPageIndex(0);
         window.scrollTo({ top: 0, behavior: "smooth" });
     }, [load]);
 
-    // Reset pagination cleanly when mode changes
+    // Force turn to the correct page when loading finishes or mode toggles
     useEffect(() => {
-        setPageIndex(0);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        if (flipBookRef.current?.pageFlip()) {
+        if (!loading && readMode === "paged" && flipBookRef.current?.pageFlip()) {
             try {
-                flipBookRef.current.pageFlip().turnToPage(0);
+                flipBookRef.current.pageFlip().turnToPage(pageIndex);
             } catch (e) {
                 // ignore initialization errors
             }
         }
-    }, [readMode]);
+    }, [loading, readMode]); // eslint-disable-line
 
     const chapter = data?.chapter;
     const nav = data?.navigation;
@@ -111,22 +122,33 @@ function Reader() {
         if (isNovel) {
             paragraphs = chapter.content.split("\n\n").filter(p => p.trim() !== "");
             totalPages = Math.ceil(paragraphs.length / parasPerPage);
-            // FlipBook needs an even number of pages ideally, but it handles odd gracefully mostly.
         } else {
             totalPages = chapter.pages?.length || 1;
         }
     }
 
     const onFlip = useCallback((e) => {
-        setPageIndex(e.data); // e.data is current page index
-    }, []);
+        const newPage = e.data;
+        setPageIndex(newPage);
+        // Save progress aggressively to database when page turns
+        saveProgress(bookId, {
+            lastChapterNumber: currentChapter,
+            chapterId: data?.chapter?._id || null,
+            position: { page: newPage }
+        }).then(() => {
+            setSaved(true);
+            setTimeout(() => setSaved(false), 2000);
+        }).catch(() => { });
+    }, [bookId, currentChapter, data]);
 
     const handleNext = () => {
         if (readMode === "paged") {
             if (isNovel && flipBookRef.current?.pageFlip()) {
                 flipBookRef.current.pageFlip().flipNext();
             } else if (!isNovel && pageIndex < totalPages - 1) {
-                setPageIndex(p => p + 1);
+                const nextP = pageIndex + 1;
+                setPageIndex(nextP);
+                onFlip({ data: nextP });
                 window.scrollTo({ top: 0, behavior: "smooth" });
             } else if (nav?.next) {
                 navigate(`/read/${bookId}/${nav.next.chapterNumber}`);
@@ -141,7 +163,9 @@ function Reader() {
             if (isNovel && flipBookRef.current?.pageFlip()) {
                 flipBookRef.current.pageFlip().flipPrev();
             } else if (!isNovel && pageIndex > 0) {
-                setPageIndex(p => p - 1);
+                const prevP = pageIndex - 1;
+                setPageIndex(prevP);
+                onFlip({ data: prevP });
                 window.scrollTo({ top: 0, behavior: "smooth" });
             } else if (nav?.prev) {
                 navigate(`/read/${bookId}/${nav.prev.chapterNumber}`);
