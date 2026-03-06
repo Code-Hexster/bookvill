@@ -1,0 +1,122 @@
+.manga-reader-container {
+    background-color: #000;
+    /* True black is best for manga reading */
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.manga-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(15, 15, 15, 0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-manga-back {
+    background: transparent;
+    border: none;
+    color: #bbb;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.btn-manga-back:hover {
+    color: #fff;
+}
+
+.manga-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.manga-nav-small button {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    padding: 5px 12px;
+    margin-left: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.manga-nav-small button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.manga-nav-small button:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.manga-scroll-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin: 0 auto;
+    background: #000;
+}
+
+.manga-image-block {
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    display: block;
+    margin: 0;
+    /* No margin creating seamless vertical scroll */
+    object-fit: contain;
+}
+
+/* Manga panels usually look best maxed to reasonable width on desktop */
+@media (min-width: 800px) {
+    .manga-image-block {
+        max-width: 750px;
+    }
+}
+
+.manga-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 40px 20px;
+    background: #0b0b0b;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.btn-manga-large {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-manga-large:disabled {
+    opacity: 0.15;
+    cursor: not-allowed;
+}
+
+.btn-manga-large:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.btn-manga-large.primary {
+    background: var(--accent);
+    font-weight: bold;
+}
+
+.btn-manga-large.primary:hover:not(:disabled) {
+    background: #6a57e6;
+}

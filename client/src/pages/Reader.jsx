@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import HTMLFlipBook from "react-pageflip";
 import { fetchChapter, saveProgress, fetchBookmarkByBook } from "../services/api";
+import NovelReader from "../components/NovelReader";
+import MangaReader from "../components/MangaReader";
 import "./Reader.css";
-
-const FONT_SIZES = [14, 16, 18, 20, 22, 24];
 
 const FALLBACK = {
     chapter: {
@@ -26,63 +25,42 @@ The game has just begun. And for the first time in his life, Sung Jin-Woo smiles
     navigation: { prev: null, next: null },
 };
 
-// Single page component required by HTMLFlipBook
-const Page = React.forwardRef((props, ref) => {
-    return (
-        <div className="book-page" ref={ref} data-density="soft">
-            <div className="page-content">{props.children}</div>
-            <div className="page-footer">Page {props.number}</div>
-        </div>
-    );
-});
-Page.displayName = "Page";
-
 function Reader() {
     const { bookId, chapterNumber } = useParams();
     const navigate = useNavigate();
 
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [isDark, setIsDark] = useState(true);
-    const [fontSizeIdx, setFontSizeIdx] = useState(2);
-    const [saved, setSaved] = useState(false);
+    const [initialPage, setInitialPage] = useState(0);
 
-    // Reading Modes State
-    const [readMode, setReadMode] = useState("scroll"); // 'scroll' or 'paged'
-    const [pageIndex, setPageIndex] = useState(0);
-
-    const flipBookRef = useRef(null);
-
-    const fontSize = FONT_SIZES[fontSizeIdx];
     const currentChapter = parseInt(chapterNumber) || 1;
 
-    const load = useCallback(async () => {
+    const loadChapterAndProgress = useCallback(async () => {
         setLoading(true);
-        setSaved(false);
         try {
             const result = await fetchChapter(bookId, currentChapter);
             setData(result);
 
-            let initialPage = 0;
+            let initPage = 0;
             // Fetch bookmark to see if we should resume from a specific page
             try {
                 const bkmk = await fetchBookmarkByBook(bookId);
                 // If the bookmark is on the *current* chapter, resume its exact page
                 if (bkmk && bkmk.lastChapterNumber === result.chapter.chapterNumber && bkmk.position?.page) {
-                    initialPage = bkmk.position.page;
+                    initPage = bkmk.position.page;
                 }
             } catch (e) {
-                // It's perfectly fine if no bookmark exists yet
+                // Ignore if bookmark doesn't exist
             }
 
-            setPageIndex(initialPage);
+            setInitialPage(initPage);
 
-            // Save initial view (creates bookmark if fresh)
+            // Save initial view silently
             try {
                 await saveProgress(bookId, {
                     lastChapterNumber: result.chapter.chapterNumber,
                     chapterId: result.chapter._id || null,
-                    position: { page: initialPage }
+                    position: { page: initPage }
                 });
             } catch { }
 
@@ -94,239 +72,47 @@ function Reader() {
     }, [bookId, currentChapter]);
 
     useEffect(() => {
-        load();
+        loadChapterAndProgress();
         window.scrollTo({ top: 0, behavior: "smooth" });
-    }, [load]);
+    }, [loadChapterAndProgress]);
 
-    // Force turn to the correct page when loading finishes or mode toggles
-    useEffect(() => {
-        if (!loading && readMode === "paged" && flipBookRef.current?.pageFlip()) {
-            try {
-                flipBookRef.current.pageFlip().turnToPage(pageIndex);
-            } catch (e) {
-                // ignore initialization errors
-            }
-        }
-    }, [loading, readMode]); // eslint-disable-line
-
-    const chapter = data?.chapter;
-    const nav = data?.navigation;
-
-    // Computation for Pages
-    const isNovel = !!chapter?.content;
-    const parasPerPage = 6;
-    let paragraphs = [];
-    let totalPages = 1;
-
-    if (chapter) {
-        if (isNovel) {
-            paragraphs = chapter.content.split("\n\n").filter(p => p.trim() !== "");
-            totalPages = Math.ceil(paragraphs.length / parasPerPage);
-        } else {
-            totalPages = chapter.pages?.length || 1;
-        }
-    }
-
-    const onFlip = useCallback((e) => {
-        const newPage = e.data;
-        setPageIndex(newPage);
-        // Save progress aggressively to database when page turns
-        saveProgress(bookId, {
-            lastChapterNumber: currentChapter,
-            chapterId: data?.chapter?._id || null,
-            position: { page: newPage }
-        }).then(() => {
-            setSaved(true);
-            setTimeout(() => setSaved(false), 2000);
-        }).catch(() => { });
-    }, [bookId, currentChapter, data]);
-
-    const handleNext = () => {
-        if (readMode === "paged") {
-            if (isNovel && flipBookRef.current?.pageFlip()) {
-                flipBookRef.current.pageFlip().flipNext();
-            } else if (!isNovel && pageIndex < totalPages - 1) {
-                const nextP = pageIndex + 1;
-                setPageIndex(nextP);
-                onFlip({ data: nextP });
-                window.scrollTo({ top: 0, behavior: "smooth" });
-            } else if (nav?.next) {
-                navigate(`/read/${bookId}/${nav.next.chapterNumber}`);
-            }
-        } else if (nav?.next) {
-            navigate(`/read/${bookId}/${nav.next.chapterNumber}`);
-        }
-    };
-
-    const handlePrev = () => {
-        if (readMode === "paged") {
-            if (isNovel && flipBookRef.current?.pageFlip()) {
-                flipBookRef.current.pageFlip().flipPrev();
-            } else if (!isNovel && pageIndex > 0) {
-                const prevP = pageIndex - 1;
-                setPageIndex(prevP);
-                onFlip({ data: prevP });
-                window.scrollTo({ top: 0, behavior: "smooth" });
-            } else if (nav?.prev) {
-                navigate(`/read/${bookId}/${nav.prev.chapterNumber}`);
-            }
-        } else if (nav?.prev) {
-            navigate(`/read/${bookId}/${nav.prev.chapterNumber}`);
-        }
-    };
-
-    return (
-        <div className={`reader-page ${isDark ? "reader-dark" : "reader-light"}`}>
-            {/* Toolbar */}
-            <div className="reader-toolbar">
-                <button className="reader-back-btn" onClick={() => navigate(-1)}>
-                    ← Back
-                </button>
-
-                <div className="reader-controls">
-                    {saved && <span className="saved-indicator">✓ Progress saved</span>}
-
-                    <button
-                        className="mode-toggle"
-                        onClick={() => setReadMode(m => m === "scroll" ? "paged" : "scroll")}
-                    >
-                        {readMode === "scroll" ? "↕️ Scroll Mode" : "📖 Paged Mode"}
-                    </button>
-
-                    {isNovel && (
-                        <div className="font-control">
-                            <button
-                                className="font-btn"
-                                onClick={() => setFontSizeIdx((i) => Math.max(0, i - 1))}
-                                disabled={fontSizeIdx === 0}
-                            >A−</button>
-                            <span className="font-size-label">{fontSize}px</span>
-                            <button
-                                className="font-btn"
-                                onClick={() => setFontSizeIdx((i) => Math.min(FONT_SIZES.length - 1, i + 1))}
-                                disabled={fontSizeIdx === FONT_SIZES.length - 1}
-                            >A+</button>
-                        </div>
-                    )}
-
-                    <button
-                        className="theme-toggle"
-                        onClick={() => setIsDark((d) => !d)}
-                    >
-                        {isDark ? "☀️ Light" : "🌙 Dark"}
-                    </button>
+    if (loading) {
+        return (
+            <div className={`reader-page reader-dark`}>
+                <div className="reader-loading" style={{ height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                    <div className="reader-spinner" />
+                    <p style={{ marginTop: "1rem" }}>Loading chapter...</p>
                 </div>
             </div>
+        );
+    }
 
-            {/* Content */}
-            <div className="reader-container">
-                {loading ? (
-                    <div className="reader-loading">
-                        <div className="reader-spinner" />
-                        <p>Loading chapter...</p>
-                    </div>
-                ) : (
-                    <>
-                        <div className="reader-header">
-                            <p className="reader-book-label">Chapter {chapter?.chapterNumber}</p>
-                            <h1 className="reader-chapter-title">{chapter?.title || `Chapter ${chapter?.chapterNumber}`}</h1>
-                            {chapter?.wordCount > 0 && (
-                                <p className="reader-meta">
-                                    {chapter.wordCount.toLocaleString()} words ·{" "}
-                                    ~{Math.ceil(chapter.wordCount / 200)} min read
-                                </p>
-                            )}
-                            {readMode === "paged" && !isNovel && (
-                                <p className="reader-meta-page">
-                                    Page {pageIndex + 1} of {totalPages}
-                                </p>
-                            )}
-                            <div className="reader-divider" />
-                        </div>
+    const isNovel = !!data?.chapter?.content;
 
-                        <div
-                            className={`reader-content mode-${readMode}`}
-                            style={isNovel ? { fontSize: `${fontSize}px`, lineHeight: fontSize < 18 ? "1.75" : "1.9" } : {}}
-                        >
-                            {isNovel ? (
-                                // NOVEL RENDERING
-                                readMode === "scroll" ? (
-                                    paragraphs.map((para, i) => <p key={i}>{para}</p>)
-                                ) : (
-                                    <div className="flipbook-wrapper">
-                                        <HTMLFlipBook
-                                            width={350}
-                                            height={500}
-                                            size="stretch"
-                                            minWidth={315}
-                                            maxWidth={1000}
-                                            minHeight={400}
-                                            maxHeight={800}
-                                            maxShadowOpacity={0.5}
-                                            showCover={false}
-                                            mobileScrollSupport={true}
-                                            className="novel-flipbook"
-                                            ref={flipBookRef}
-                                            onFlip={onFlip}
-                                            usePortrait={true}
-                                        >
-                                            {Array.from({ length: totalPages }).map((_, i) => (
-                                                <Page number={i + 1} key={i}>
-                                                    {paragraphs.slice(i * parasPerPage, (i + 1) * parasPerPage).map((para, idx) => (
-                                                        <p key={idx}>{para}</p>
-                                                    ))}
-                                                </Page>
-                                            ))}
-                                        </HTMLFlipBook>
-                                    </div>
-                                )
-                            ) : (
-                                // MANGA RENDERING
-                                readMode === "scroll" ? (
-                                    chapter?.pages?.map((url, i) => (
-                                        <img key={i} src={url} alt={`Page ${i + 1}`} className="reader-page-img" />
-                                    ))
-                                ) : (
-                                    <div key={pageIndex} className="paged-image-container">
-                                        <img
-                                            src={chapter?.pages?.[pageIndex]}
-                                            alt={`Page ${pageIndex + 1}`}
-                                            className="reader-page-img-single"
-                                        />
-                                        <div className="manga-nav-overlay">
-                                            <div className="manga-nav-left" onClick={(e) => { e.stopPropagation(); handlePrev(); }} />
-                                            <div className="manga-nav-right" onClick={(e) => { e.stopPropagation(); handleNext(); }} />
-                                        </div>
-                                    </div>
-                                )
-                            )}
-                        </div>
-
-                        {/* Chapter Navigation */}
-                        <div className="reader-nav">
-                            <button
-                                className="reader-nav-btn"
-                                disabled={!nav?.prev && (readMode === "scroll" || pageIndex === 0)}
-                                onClick={handlePrev}
-                            >
-                                ← {readMode === "paged" && pageIndex > 0 ? "Prev Page" : (nav?.prev ? `Ch. ${nav.prev.chapterNumber}` : "No Previous")}
-                            </button>
-
-                            <span className="reader-chapter-badge">Ch. {chapter?.chapterNumber}</span>
-
-                            <button
-                                className="reader-nav-btn"
-                                disabled={!nav?.next && (readMode === "scroll" || pageIndex >= totalPages - 1)}
-                                onClick={handleNext}
-                            >
-                                {readMode === "paged" && pageIndex < totalPages - 1 ? "Next Page" : (nav?.next ? `Ch. ${nav.next.chapterNumber}` : "No Next")} →
-                            </button>
-                        </div>
-                    </>
-                )}
-            </div>
-        </div>
-    );
+    // Smartly dispatch to the correct independent reader component
+    if (isNovel) {
+        return (
+            <NovelReader
+                data={data}
+                initialPage={initialPage}
+                bookId={bookId}
+                currentChapter={currentChapter}
+                onNavigate={(path) => navigate(path)}
+                onBack={() => navigate(-1)}
+            />
+        );
+    } else {
+        return (
+            <MangaReader
+                data={data}
+                initialPage={initialPage}
+                bookId={bookId}
+                currentChapter={currentChapter}
+                onNavigate={(path) => navigate(path)}
+                onBack={() => navigate(-1)}
+            />
+        );
+    }
 }
 
 export default Reader;
