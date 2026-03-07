@@ -1,175 +1,129 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchMyBookmarks } from "../services/api";
+import { fetchMyBookmarks, fetchBooks } from "../services/api";
 import "./Library.css";
-
-const MOCK_BOOKS = [
-    { id: 1, title: "Solo Leveling", author: "Chugong", format: "Manhwa", genre: "Action", cover: "https://picsum.photos/seed/solo/160/220", rating: 4.9 },
-    { id: 2, title: "One Piece", author: "Eiichiro Oda", format: "Manga", genre: "Adventure", cover: "https://picsum.photos/seed/onepiece/160/220", rating: 4.8 },
-    { id: 3, title: "The Name of the Wind", author: "Patrick Rothfuss", format: "Novel", genre: "Fantasy", cover: "https://picsum.photos/seed/namewind/160/220", rating: 4.7 },
-    { id: 4, title: "Tower of God", author: "SIU", format: "Manhwa", genre: "Fantasy", cover: "https://picsum.photos/seed/tog/160/220", rating: 4.6 },
-    { id: 5, title: "Vinland Saga", author: "Makoto Yukimura", format: "Manga", genre: "Historical", cover: "https://picsum.photos/seed/vinland/160/220", rating: 4.8 },
-    { id: 6, title: "Mushoku Tensei", author: "Rifujin na Magonote", format: "Light Novel", genre: "Isekai", cover: "https://picsum.photos/seed/mushoku/160/220", rating: 4.5 },
-    { id: 7, title: "Berserk", author: "Kentaro Miura", format: "Manga", genre: "Dark Fantasy", cover: "https://picsum.photos/seed/berserk/160/220", rating: 4.9 },
-    { id: 8, title: "Overlord", author: "Kugane Maruyama", format: "Light Novel", genre: "Isekai", cover: "https://picsum.photos/seed/overlord/160/220", rating: 4.6 },
-];
-
-const FORMAT_COLORS = {
-    "Manga": "#e74c3c",
-    "Manhwa": "#3498db",
-    "Manhua": "#f39c12",
-    "Novel": "#2ecc71",
-    "Light Novel": "#9b59b6",
-    "Comic": "#1abc9c",
-};
-
-const CATEGORIES = ["All", "Manga", "Manhwa", "Novel", "Light Novel", "Manhua"];
 
 function Library() {
     const navigate = useNavigate();
-    const [search, setSearch] = useState("");
-    const [activeCategory, setActiveCategory] = useState("All");
-    const [sortBy, setSortBy] = useState("default");
-    const [continueReading, setContinueReading] = useState([]);
+    const [bookmarks, setBookmarks] = useState([]);
 
-    // Fetch bookmarks for Continue Reading section
+    // Recommendations state
+    const [trending, setTrending] = useState([]);
+    const [newest, setNewest] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
-        fetchMyBookmarks()
-            .then((bms) => setContinueReading(bms.filter((b) => b.readingStatus === "reading").slice(0, 6)))
-            .catch(() => { }); // silently fail if not logged in
+        const loadDashboard = async () => {
+            setLoading(true);
+            try {
+                // Fetch Continue Reading history
+                const bms = await fetchMyBookmarks();
+                setBookmarks(bms || []);
+
+                // Fetch Trending
+                const trendData = await fetchBooks({ sort: "trending", limit: 6 });
+                setTrending(trendData.books || []);
+
+                // Fetch Recently Added
+                const newData = await fetchBooks({ sort: "newest", limit: 6 });
+                setNewest(newData.books || []);
+            } catch (err) {
+                console.error("Failed to load library dashboard:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadDashboard();
     }, []);
 
-    const displayedBooks = useMemo(() => {
-        let books = [...MOCK_BOOKS];
+    // Extract only the top 3 items for the "Continue Reading" banner to save space
+    const continueReadingBooks = bookmarks.filter(b => b.book).slice(0, 3);
 
-        // 1. Filter by category
-        if (activeCategory !== "All") {
-            books = books.filter((b) => b.format === activeCategory);
-        }
-
-        // 2. Search by title
-        if (search.trim()) {
-            const q = search.trim().toLowerCase();
-            books = books.filter((b) => b.title.toLowerCase().includes(q));
-        }
-
-        // 3. Sort by popularity (rating desc)
-        if (sortBy === "popularity") {
-            books = books.sort((a, b) => b.rating - a.rating);
-        }
-
-        return books;
-    }, [search, activeCategory, sortBy]);
+    if (loading) {
+        return (
+            <div className="library-loading" style={{ height: "60vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+                <div className="spinner"></div>
+            </div>
+        );
+    }
 
     return (
-        <div className="library-page">
-            <div className="library-header">
-                <h1>📚 Book Library</h1>
-                <p>Discover novels, manga, manhwa, and more</p>
-            </div>
+        <div className="library-container fade-in">
+            <h1 className="library-title">Discover & Read</h1>
 
-            {/* Continue Reading */}
-            {continueReading.length > 0 && (
-                <section className="continue-section">
-                    <h2 className="continue-title">🔖 Continue Reading</h2>
-                    <div className="continue-list">
-                        {continueReading.map((bm) => (
-                            <div key={bm._id} className="continue-card">
-                                <img
-                                    src={bm.book?.coverImage || `https://picsum.photos/seed/${bm.book?._id}/60/84`}
-                                    alt={bm.book?.title}
-                                    className="continue-cover"
-                                />
-                                <div className="continue-info">
-                                    <p className="continue-book-title">{bm.book?.title}</p>
-                                    <p className="continue-chapter">Chapter {bm.lastChapterNumber}</p>
-                                    <button
-                                        className="btn-continue"
-                                        onClick={() => navigate(`/read/${bm.book?._id}/${bm.lastChapterNumber}`)}
-                                    >
-                                        Continue →
-                                    </button>
+            {/* CONTINUE READING HEADER CAROUSEL */}
+            {continueReadingBooks.length > 0 && (
+                <div className="continue-reading-section">
+                    <h2 className="section-subtitle">Jump Back In</h2>
+                    <div className="continue-cards-wrapper">
+                        {continueReadingBooks.map(bm => (
+                            <div key={bm._id} className="continue-card" onClick={() => navigate(`/read/${bm.book._id}/${bm.lastChapterNumber}`)}>
+                                <div className="continue-card-bg" style={{ backgroundImage: `url(${bm.book.coverImage || bm.book.cover || `https://picsum.photos/seed/${bm.book._id}/400/200`})` }}></div>
+                                <div className="continue-card-content">
+                                    <div className="continue-text">
+                                        <h3>{bm.book.title}</h3>
+                                        <p>Continue from Chapter {bm.lastChapterNumber}</p>
+                                    </div>
+                                    <button className="btn-continue">Resume</button>
                                 </div>
                             </div>
                         ))}
                     </div>
-                </section>
+                </div>
             )}
 
-            {/* Search + Sort Row */}
-            <div className="library-controls">
-                <div className="search-wrapper">
-                    <span className="search-icon">🔍</span>
-                    <input
-                        type="text"
-                        className="search-input"
-                        placeholder="Search by title..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
-                    {search && (
-                        <button className="clear-search" onClick={() => setSearch("")}>✕</button>
-                    )}
+            {/* TRENDING CAROUSEL */}
+            <div className="book-grid-section">
+                <div className="section-header">
+                    <h2 className="section-subtitle">🔥 Trending Now</h2>
+                    <button className="btn-view-all">View All</button>
                 </div>
-
-                <select
-                    className="sort-select"
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                >
-                    <option value="default">Sort: Default</option>
-                    <option value="popularity">Sort: Most Popular</option>
-                </select>
-            </div>
-
-            {/* Category Filter Bar */}
-            <div className="filter-bar">
-                {CATEGORIES.map((f) => (
-                    <button
-                        key={f}
-                        className={`filter-btn ${activeCategory === f ? "active" : ""}`}
-                        onClick={() => setActiveCategory(f)}
-                    >
-                        {f}
-                    </button>
-                ))}
-            </div>
-
-            {/* Book Grid */}
-            {displayedBooks.length === 0 ? (
-                <div className="no-results">
-                    <span>😶</span>
-                    <p>No books found for <strong>"{search}"</strong></p>
-                </div>
-            ) : (
-                <div className="books-grid">
-                    {displayedBooks.map((book) => (
-                        <div key={book.id} className="book-card">
-                            <div className="book-cover-wrapper">
-                                <img src={book.cover} alt={book.title} className="book-cover" />
-                                <span
-                                    className="format-badge"
-                                    style={{ background: FORMAT_COLORS[book.format] || "#555" }}
-                                >
-                                    {book.format}
-                                </span>
-                            </div>
-                            <div className="book-info">
-                                <h3 className="book-title">{book.title}</h3>
-                                <p className="book-author">by {book.author}</p>
-                                <div className="book-meta">
-                                    <span className="book-genre">{book.genre}</span>
-                                    <span className="book-rating">⭐ {book.rating}</span>
+                {trending.length > 0 ? (
+                    <div className="library-grid horizontal-scroll">
+                        {trending.map(book => (
+                            <div key={book._id} className="book-card" onClick={() => navigate(`/book/${book._id}`)}>
+                                <div className="book-cover-wrapper">
+                                    <img src={book.coverImage || book.cover || `https://picsum.photos/seed/${book._id}/300/400`} alt={book.title} className="book-cover" />
+                                    <div className="book-format-badge">{book.format}</div>
                                 </div>
-                                <button
-                                    className="btn-read"
-                                    onClick={() => navigate(`/read/${book.id}/1`)}
-                                >Read Now</button>
+                                <div className="book-info">
+                                    <h3 className="book-title" title={book.title}>{book.title}</h3>
+                                    <p className="book-author">{book.author}</p>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
+                ) : (
+                    <p className="empty-message">No trending books right now.</p>
+                )}
+            </div>
+
+            {/* RECENTLY ADDED */}
+            <div className="book-grid-section">
+                <div className="section-header">
+                    <h2 className="section-subtitle">✨ Recently Added</h2>
+                    <button className="btn-view-all">View All</button>
                 </div>
-            )}
+                {newest.length > 0 ? (
+                    <div className="library-grid horizontal-scroll">
+                        {newest.map(book => (
+                            <div key={book._id} className="book-card" onClick={() => navigate(`/book/${book._id}`)}>
+                                <div className="book-cover-wrapper">
+                                    <img src={book.coverImage || book.cover || `https://picsum.photos/seed/${book._id}/300/400`} alt={book.title} className="book-cover" />
+                                    <div className="book-format-badge">{book.format}</div>
+                                </div>
+                                <div className="book-info">
+                                    <h3 className="book-title" title={book.title}>{book.title}</h3>
+                                    <p className="book-author">{book.author}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="empty-message">No new books added.</p>
+                )}
+            </div>
         </div>
     );
 }

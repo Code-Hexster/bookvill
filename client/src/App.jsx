@@ -6,7 +6,10 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Library from "./pages/Library";
+import BookDetails from "./pages/BookDetails";
 import Reader from "./pages/Reader";
+import AdminDashboard from "./pages/AdminDashboard";
+import Profile from "./pages/Profile";
 import "./App.css";
 
 function App() {
@@ -28,6 +31,29 @@ function App() {
                 <Library />
               </PrivateRoute>
             }
+          />
+
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute>
+                <AdminDashboard />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/book/:bookId"
+            element={<BookDetails />} // Keep this public or private? Most sites allow public viewing of details.
           />
 
           <Route
