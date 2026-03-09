@@ -1,5 +1,13 @@
 const mongoose = require("mongoose");
 
+const reviewSchema = new mongoose.Schema({
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    username: { type: String, required: true },
+    avatar: { type: String },
+    rating: { type: Number, required: true, min: 1, max: 5 },
+    comment: { type: String, required: true, maxlength: 1000 }
+}, { timestamps: true });
+
 /**
  * Book Collection
  *
@@ -64,6 +72,7 @@ const bookSchema = new mongoose.Schema(
             sum: { type: Number, default: 0 },
             count: { type: Number, default: 0 },
         },
+        reviews: [reviewSchema],
         // Denormalized for display — updated when chapters are added/removed
         chapterCount: {
             type: Number,
@@ -103,9 +112,18 @@ bookSchema.virtual("averageRating").get(function () {
     return (this.ratings.sum / this.ratings.count).toFixed(1);
 });
 
-// ── Pre-save: sync titleLower ─────────────────────────────────
+// ── Pre-save: sync titleLower & update ratings ───────────────
 bookSchema.pre("save", function (next) {
-    this.titleLower = this.title.toLowerCase();
+    if (this.isModified("title")) {
+        this.titleLower = this.title.toLowerCase();
+    }
+
+    // Auto-calculate ratings on review modifications
+    if (this.isModified("reviews")) {
+        this.ratings.count = this.reviews.length;
+        this.ratings.sum = this.reviews.reduce((acc, rev) => acc + rev.rating, 0);
+    }
+
     next();
 });
 

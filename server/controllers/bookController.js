@@ -369,6 +369,66 @@ const deleteBook = async (req, res) => {
     }
 };
 
+// ─────────────────────────────────────────────────────────────
+// @desc    Add a review
+// @route   POST /api/books/:id/reviews
+// @access  Private
+// ─────────────────────────────────────────────────────────────
+const addBookReview = async (req, res) => {
+    try {
+        const { rating, comment } = req.body;
+        const book = await Book.findById(req.params.id);
+        if (!book) return res.status(404).json({ message: "Book not found" });
+
+        const alreadyReviewed = book.reviews.find(r => r.user.toString() === req.user._id.toString());
+        if (alreadyReviewed) {
+            return res.status(400).json({ message: "You already reviewed this book" });
+        }
+
+        const review = {
+            user: req.user._id,
+            username: req.user.username,
+            avatar: req.user.avatar || "",
+            rating: Number(rating),
+            comment,
+        };
+
+        book.reviews.push(review);
+        await book.save();
+        res.status(201).json({ message: "Review added", reviews: book.reviews });
+    } catch (error) {
+        console.error("addBookReview error:", error.message);
+        res.status(500).json({ message: "Server error while adding review" });
+    }
+};
+
+// ─────────────────────────────────────────────────────────────
+// @desc    Delete a review
+// @route   DELETE /api/books/:id/reviews/:reviewId
+// @access  Private
+// ─────────────────────────────────────────────────────────────
+const deleteBookReview = async (req, res) => {
+    try {
+        const { id, reviewId } = req.params;
+        const book = await Book.findById(id);
+        if (!book) return res.status(404).json({ message: "Book not found" });
+
+        const review = book.reviews.id(reviewId);
+        if (!review) return res.status(404).json({ message: "Review not found" });
+
+        if (review.user.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+            return res.status(403).json({ message: "Not authorized to delete this review" });
+        }
+
+        review.deleteOne();
+        await book.save();
+        res.status(200).json({ message: "Review removed", reviews: book.reviews });
+    } catch (error) {
+        console.error("deleteBookReview error:", error.message);
+        res.status(500).json({ message: "Server error while deleting review" });
+    }
+};
+
 module.exports = {
     addBook,
     getAllBooks,
@@ -377,4 +437,6 @@ module.exports = {
     searchBooks,
     updateBook,
     deleteBook,
+    addBookReview,
+    deleteBookReview,
 };

@@ -24,9 +24,19 @@ function Navbar() {
                     Home
                 </Link>
                 {user && (
-                    <Link to="/library" className={`nav-link ${location.pathname === "/library" ? "active" : ""}`}>
-                        Library
-                    </Link>
+                    <>
+                        <Link to="/library" className={`nav-link ${location.pathname === "/library" ? "active" : ""}`}>
+                            Library
+                        </Link>
+                        <Link to="/profile" className={`nav-link ${location.pathname === "/profile" ? "active" : ""}`}>
+                            Profile
+                        </Link>
+                        {user.role === "admin" && (
+                            <Link to="/admin" className={`nav-link ${location.pathname === "/admin" ? "active" : ""}`}>
+                                Admin
+                            </Link>
+                        )}
+                    </>
                 )}
             </div>
 

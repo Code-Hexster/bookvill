@@ -8,6 +8,8 @@ const {
     searchBooks,
     updateBook,
     deleteBook,
+    addBookReview,
+    deleteBookReview,
 } = require("../controllers/bookController");
 const { protect } = require("../middleware/authMiddleware");
 
@@ -33,5 +35,12 @@ router.put("/:id", protect, updateBook);
 
 // DELETE /api/books/:id       — delete (admin only)
 router.delete("/:id", protect, deleteBook);
+
+// ── Review routes ─────────────────────────────────────────────
+// POST /api/books/:id/reviews — add review
+router.post("/:id/reviews", protect, addBookReview);
+
+// DELETE /api/books/:id/reviews/:reviewId — delete review
+router.delete("/:id/reviews/:reviewId", protect, deleteBookReview);
 
 module.exports = router;
