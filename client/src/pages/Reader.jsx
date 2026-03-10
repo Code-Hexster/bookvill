@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchChapter, saveProgress, fetchBookmarkByBook } from "../services/api";
+import { fetchChapter, saveProgress, fetchBookmarkByBook, fetchChaptersByBook } from "../services/api";
 import NovelReader from "../components/NovelReader";
 import MangaReader from "../components/MangaReader";
 import "./Reader.css";
@@ -30,6 +30,7 @@ function Reader() {
     const navigate = useNavigate();
 
     const [data, setData] = useState(null);
+    const [chaptersList, setChaptersList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [initialPage, setInitialPage] = useState(0);
 
@@ -38,8 +39,12 @@ function Reader() {
     const loadChapterAndProgress = useCallback(async () => {
         setLoading(true);
         try {
-            const result = await fetchChapter(bookId, currentChapter);
+            const [result, chList] = await Promise.all([
+                fetchChapter(bookId, currentChapter),
+                fetchChaptersByBook(bookId).catch(() => []) // Silent fallback
+            ]);
             setData(result);
+            setChaptersList(chList);
 
             let initPage = 0;
             // Fetch bookmark to see if we should resume from a specific page
@@ -97,6 +102,7 @@ function Reader() {
                 initialPage={initialPage}
                 bookId={bookId}
                 currentChapter={currentChapter}
+                chaptersList={chaptersList}
                 onNavigate={(path) => navigate(path)}
                 onBack={() => navigate(-1)}
             />
@@ -108,6 +114,7 @@ function Reader() {
                 initialPage={initialPage}
                 bookId={bookId}
                 currentChapter={currentChapter}
+                chaptersList={chaptersList}
                 onNavigate={(path) => navigate(path)}
                 onBack={() => navigate(-1)}
             />

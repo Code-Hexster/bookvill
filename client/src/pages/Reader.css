@@ -582,3 +582,97 @@
     text-align: center;
     font-size: 0.85rem;
 }
+
+/* ─── Reader Controls (Day 20 Additions) ─────── */
+.distraction-free .reader-toolbar {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.distraction-free .reader-nav {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.reader-toolbar {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.reader-nav {
+    transition: opacity 0.3s ease;
+}
+
+.chapter-jump-dropdown {
+    margin-left: 15px;
+    background: rgba(0, 0, 0, 0.1);
+    color: inherit;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.reader-dark .chapter-jump-dropdown {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.reader-dark .chapter-jump-dropdown option {
+    background: #1a1a24;
+    color: #fff;
+}
+
+.jump-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    border-top: 1px solid var(--border);
+    padding-top: 15px;
+    margin-top: 5px;
+}
+
+.jump-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.jump-input input {
+    width: 60px;
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
+    color: inherit;
+    padding: 6px;
+    border-radius: 6px;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.reader-dark .jump-input input {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.reader-progress-bar-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+.reader-dark .reader-progress-bar-container {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.reader-progress-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.3s ease;
+}
