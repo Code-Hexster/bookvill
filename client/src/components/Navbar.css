@@ -3,10 +3,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 48px;
+    padding: 0 clamp(16px, 4vw, 48px);
     height: 64px;
-    background: rgba(15, 15, 20, 0.9);
-    backdrop-filter: blur(12px);
+    background: rgba(15, 15, 20, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border);
     position: sticky;
     top: 0;
@@ -17,13 +18,16 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 1.25rem;
-    font-weight: 700;
+    font-size: 1.2rem;
+    font-weight: 800;
     color: var(--text);
+    letter-spacing: -0.02em;
+    text-decoration: none;
+    flex-shrink: 0;
 }
 
 .logo-icon {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
 }
 
 .logo-text {
@@ -35,27 +39,45 @@
 
 .navbar-links {
     display: flex;
-    gap: 32px;
+    gap: 8px;
+    align-items: center;
+}
+
+@media (max-width: 480px) {
+    .navbar-links {
+        gap: 4px;
+    }
 }
 
 .nav-link {
     color: var(--text-muted);
     font-weight: 500;
-    transition: color 0.2s;
+    font-size: 0.9rem;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition), background var(--transition);
+    white-space: nowrap;
 }
 
-.nav-link:hover,
+.nav-link:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.05);
+}
+
 .nav-link.active {
     color: var(--text);
+    background: rgba(124, 106, 247, 0.12);
 }
 
+/* ─── Auth area ───────────────────────────────────── */
 .navbar-auth {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
+    flex-shrink: 0;
 }
 
-/* ─── User menu (logged-in state) ─────────────────── */
+/* ─── User menu ───────────────────────────────────── */
 .user-menu {
     display: flex;
     align-items: center;
@@ -72,6 +94,12 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    border: 2px solid transparent;
+    transition: border-color var(--transition);
+}
+
+.user-avatar:hover {
+    border-color: var(--accent);
 }
 
 .user-avatar img {
@@ -82,17 +110,18 @@
 
 .avatar-initials {
     color: #fff;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 700;
 }
 
 .user-name {
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     font-weight: 600;
     color: var(--text);
 }
 
-.btn-sm {
-    padding: 6px 14px !important;
-    font-size: 0.82rem !important;
+@media (max-width: 540px) {
+    .user-name {
+        display: none;
+    }
 }

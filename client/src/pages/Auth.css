@@ -1,35 +1,38 @@
-/* ─── Auth Pages (Login & Register) ─────────────────── */
+/* ─── Auth Pages (Login & Register) ──────────────────────── */
 .auth-page {
     min-height: calc(100vh - 64px);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px 24px;
+    padding: 40px clamp(16px, 5vw, 24px);
 }
 
 .auth-card {
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 40px;
+    border-radius: var(--radius-lg);
+    padding: clamp(28px, 5vw, 44px);
     width: 100%;
     max-width: 420px;
+    box-shadow: var(--shadow-lg);
 }
 
+/* ─── Header ──────────────────────────────────────────────── */
 .auth-header {
     text-align: center;
     margin-bottom: 32px;
 }
 
 .auth-logo {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     display: block;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 }
 
 .auth-header h1 {
-    font-size: 1.6rem;
-    font-weight: 700;
+    font-size: 1.65rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
     margin-bottom: 6px;
 }
 
@@ -38,43 +41,67 @@
     font-size: 0.9rem;
 }
 
+/* ─── Form ────────────────────────────────────────────────── */
 .auth-form {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 18px;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 7px;
 }
 
 .form-group label {
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.82rem;
+    font-weight: 700;
     color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
 }
 
 .form-group input {
     background: var(--bg);
     border: 1.5px solid var(--border);
     color: var(--text);
-    padding: 11px 14px;
-    border-radius: 8px;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font);
     font-size: 0.95rem;
     outline: none;
-    transition: border-color 0.2s;
+    transition: border-color var(--transition), box-shadow var(--transition);
+    width: 100%;
 }
 
 .form-group input:focus {
     border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
 .form-group input::placeholder {
     color: var(--text-muted);
+    opacity: 0.6;
 }
 
+/* ─── Error ───────────────────────────────────────────────── */
+.auth-error {
+    background: rgba(231, 76, 60, 0.1);
+    border: 1px solid rgba(231, 76, 60, 0.35);
+    color: #e97b6e;
+    padding: 11px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.88rem;
+    text-align: center;
+    line-height: 1.5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* ─── Switch text ─────────────────────────────────────────── */
 .auth-switch {
     text-align: center;
     margin-top: 20px;
@@ -91,21 +118,10 @@
     text-decoration: underline;
 }
 
-/* ─── Error message ──────────────────────────────── */
-.auth-error {
-    background: rgba(231, 76, 60, 0.12);
-    border: 1px solid rgba(231, 76, 60, 0.4);
-    color: #e74c3c;
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 0.875rem;
-    margin-bottom: 4px;
-    text-align: center;
-}
-
-/* ─── Disabled button state ──────────────────────── */
-.btn-primary:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none;
+/* ─── Submit Button ───────────────────────────────────────── */
+.auth-form .btn-primary {
+    width: 100%;
+    padding: 13px;
+    font-size: 1rem;
+    margin-top: 4px;
 }

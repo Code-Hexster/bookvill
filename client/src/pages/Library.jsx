@@ -40,10 +40,36 @@ function Library() {
     // Extract only the top 3 items for the "Continue Reading" banner to save space
     const continueReadingBooks = bookmarks.filter(b => b.book).slice(0, 3);
 
+    const SkeletonCard = () => (
+        <div className="book-card-skeleton">
+            <div className="skeleton skeleton-cover"></div>
+            <div className="skeleton-info">
+                <div className="skeleton skeleton-text" style={{ width: '75%' }}></div>
+                <div className="skeleton skeleton-text skeleton-sm" style={{ width: '50%' }}></div>
+            </div>
+        </div>
+    );
+
     if (loading) {
         return (
-            <div className="library-loading" style={{ height: "60vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
-                <div className="spinner"></div>
+            <div className="library-container fade-in">
+                <h1 className="library-title">Discover & Read</h1>
+                <div className="book-grid-section">
+                    <div className="section-header">
+                        <h2 className="section-subtitle">🔥 Trending Now</h2>
+                    </div>
+                    <div className="horizontal-scroll">
+                        {Array(6).fill(0).map((_, i) => <SkeletonCard key={i} />)}
+                    </div>
+                </div>
+                <div className="book-grid-section">
+                    <div className="section-header">
+                        <h2 className="section-subtitle">✨ Recently Added</h2>
+                    </div>
+                    <div className="horizontal-scroll">
+                        {Array(6).fill(0).map((_, i) => <SkeletonCard key={i} />)}
+                    </div>
+                </div>
             </div>
         );
     }

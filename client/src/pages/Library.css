@@ -1,15 +1,21 @@
+/* ─── Library Page ─────────────────────────────────────── */
 .library-container {
-    max-width: 1200px;
-    margin: 40px auto;
-    padding: 0 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px clamp(16px, 4vw, 48px);
     color: var(--text);
 }
 
 .library-title {
-    font-size: 2.5rem;
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
     font-weight: 800;
-    margin-bottom: 40px;
-    color: var(--text);
+    letter-spacing: -0.02em;
+    margin-bottom: 36px;
+}
+
+/* ─── Section Headers ─────────────────────────────────── */
+.book-grid-section {
+    margin-bottom: 52px;
 }
 
 .section-header {
@@ -17,44 +23,46 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    padding-bottom: 14px;
     border-bottom: 1px solid var(--border);
-    padding-bottom: 15px;
 }
 
 .section-subtitle {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
     font-weight: 700;
     margin: 0;
+    letter-spacing: -0.01em;
 }
 
 .btn-view-all {
     background: transparent;
     border: none;
     color: var(--accent);
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
-    font-size: 0.95rem;
+    font-size: 0.88rem;
+    padding: 5px 10px;
+    border-radius: var(--radius-sm);
+    transition: background var(--transition);
+    font-family: var(--font);
 }
 
 .btn-view-all:hover {
-    text-decoration: underline;
+    background: rgba(124, 106, 247, 0.1);
 }
 
-.book-grid-section {
-    margin-bottom: 50px;
-}
-
-/* HORIZONTAL SCROLL FOR RECOMMENDATION SECTIONS */
+/* ─── Horizontal Scroll ───────────────────────────────── */
 .horizontal-scroll {
     display: flex;
-    gap: 20px;
+    gap: 18px;
     overflow-x: auto;
-    padding-bottom: 20px;
+    padding-bottom: 12px;
     scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
 }
 
 .horizontal-scroll::-webkit-scrollbar {
-    height: 8px;
+    height: 5px;
 }
 
 .horizontal-scroll::-webkit-scrollbar-thumb {
@@ -67,109 +75,125 @@
 }
 
 .horizontal-scroll .book-card {
-    min-width: 180px;
-    max-width: 180px;
+    min-width: 160px;
+    max-width: 160px;
     scroll-snap-align: start;
     flex-shrink: 0;
 }
 
-/* BOOK CARD STYLES */
+/* ─── Book Card ───────────────────────────────────────── */
 .book-card {
     background: var(--bg-card);
-    border-radius: 12px;
+    border-radius: var(--radius);
     overflow: hidden;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid transparent;
+    transition: transform 0.22s var(--ease), box-shadow 0.22s var(--ease), border-color 0.22s;
     display: flex;
     flex-direction: column;
 }
 
 .book-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    border-color: rgba(124, 106, 247, 0.25);
 }
 
 .book-cover-wrapper {
     position: relative;
     width: 100%;
-    aspect-ratio: 2 / 3;
+    aspect-ratio: 2/3;
     overflow: hidden;
+    background: var(--bg-card-hover);
 }
 
 .book-cover {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.4s;
+    transition: transform 0.4s var(--ease);
+    display: block;
 }
 
 .book-card:hover .book-cover {
-    transform: scale(1.05);
+    transform: scale(1.06);
 }
 
 .book-format-badge {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(0, 0, 0, 0.7);
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.75);
     color: #fff;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: bold;
-    backdrop-filter: blur(4px);
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    backdrop-filter: blur(6px);
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
 }
 
 .book-info {
-    padding: 15px;
+    padding: 12px 14px 14px;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 4px;
+    flex: 1;
 }
 
 .book-title {
-    margin: 0;
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     font-weight: 700;
     color: var(--text);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    margin: 0;
 }
 
 .book-author {
+    font-size: 0.8rem;
+    color: var(--text-muted);
     margin: 0;
-    font-size: 0.9rem;
-    color: var(--text);
-    opacity: 0.6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* CONTINUE READING BANNER CARDS */
+/* ─── Continue Reading Banner ─────────────────────────── */
 .continue-reading-section {
-    margin-bottom: 50px;
+    margin-bottom: 52px;
 }
 
 .continue-cards-wrapper {
     display: flex;
-    gap: 20px;
+    gap: 18px;
     overflow-x: auto;
-    padding-bottom: 10px;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
 }
 
 .continue-card {
     position: relative;
-    min-width: 300px;
-    height: 150px;
-    border-radius: 12px;
+    min-width: 280px;
+    height: 145px;
+    border-radius: var(--radius);
     overflow: hidden;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border);
     flex: 1;
+    max-width: 380px;
+    transition: transform 0.22s var(--ease), box-shadow 0.22s var(--ease);
+}
+
+.continue-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
 }
 
 .continue-card:hover .continue-card-bg {
-    transform: scale(1.05);
+    transform: scale(1.06);
 }
 
 .continue-card-bg {
@@ -177,14 +201,14 @@
     inset: 0;
     background-size: cover;
     background-position: center;
-    transition: transform 0.4s;
-    filter: brightness(0.4);
+    transition: transform 0.4s var(--ease);
+    filter: brightness(0.35);
 }
 
 .continue-card-content {
     position: absolute;
     inset: 0;
-    padding: 20px;
+    padding: 18px 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -192,17 +216,18 @@
 }
 
 .continue-text h3 {
-    margin: 0 0 5px 0;
+    margin: 0 0 5px;
     color: #fff;
-    font-size: 1.2rem;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    font-size: 1.05rem;
+    font-weight: 700;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 
 .continue-text p {
     margin: 0;
     color: var(--accent);
-    font-weight: bold;
-    font-size: 0.9rem;
+    font-weight: 600;
+    font-size: 0.85rem;
 }
 
 .btn-continue {
@@ -210,19 +235,61 @@
     background: var(--accent);
     color: #fff;
     border: none;
-    padding: 8px 20px;
+    padding: 7px 18px;
     border-radius: 6px;
-    font-weight: bold;
+    font-weight: 700;
+    font-size: 0.85rem;
     cursor: pointer;
-    transition: 0.2s;
+    font-family: var(--font);
+    transition: background var(--transition), transform var(--transition);
 }
 
 .btn-continue:hover {
-    background: #5a4bcf;
+    background: #6a57e6;
+    transform: translateY(-2px);
 }
 
-.empty-message {
-    opacity: 0.5;
-    font-style: italic;
-    padding: 20px 0;
+/* ─── Loading Skeleton Cards ──────────────────────────── */
+.book-card-skeleton {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    overflow: hidden;
+    min-width: 160px;
+    max-width: 160px;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+}
+
+.book-card-skeleton .skeleton-cover {
+    aspect-ratio: 2/3;
+}
+
+.book-card-skeleton .skeleton-info {
+    padding: 12px 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* ─── Empty State ─────────────────────────────────────── */
+.library-empty {
+    padding: 30px;
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    border: 1px dashed var(--border);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* ─── Responsive ──────────────────────────────────────── */
+@media (max-width: 768px) {
+    .continue-card {
+        min-width: 260px;
+    }
+
+    .horizontal-scroll .book-card {
+        min-width: 140px;
+        max-width: 140px;
+    }
 }
