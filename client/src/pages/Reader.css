@@ -392,56 +392,154 @@
 .flipbook-wrapper {
     display: flex;
     justify-content: center;
-    margin: 20px 0;
+    align-items: flex-start;
+    margin: 24px 0;
     width: 100%;
+    /* Ambient book shadow beneath the whole flipbook */
+    filter: drop-shadow(0 24px 48px rgba(0, 0, 0, 0.45)) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+    transition: filter 0.3s ease;
+}
+
+/* While a flip is in progress, intensify the shadow slightly */
+.is-flipping .flipbook-wrapper {
+    filter: drop-shadow(0 30px 56px rgba(0, 0, 0, 0.55)) drop-shadow(0 10px 20px rgba(0, 0, 0, 0.35));
 }
 
 .novel-flipbook {
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    border-radius: 4px;
+    border-radius: 3px;
 }
 
 .book-page {
-    background-color: var(--bg-card);
+    background-color: #fcfaf5;
     overflow: hidden;
     position: relative;
-    color: var(--text);
-    padding: 30px 40px;
+    color: #2c2a38;
+    padding: 38px 44px 30px;
     display: flex;
     flex-direction: column;
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    /* Page edge border — subtle inset line to simulate paper edge */
+    border-left: 1px solid rgba(0, 0, 0, 0.04);
+    border-right: 1px solid rgba(0, 0, 0, 0.06);
 }
 
-.reader-dark .book-page {
-    background-color: #1a1a24;
-    color: #e8e8f0;
-    border-color: rgba(255, 255, 255, 0.02);
-    box-shadow: inset -4px 0px 10px rgba(0, 0, 0, 0.2), inset 4px 0px 10px rgba(0, 0, 0, 0.2);
+/* ── Paper grain texture overlay ────────────── */
+.page-grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    border-radius: inherit;
 }
 
-.reader-light .book-page {
-    background-color: #fcfbf7;
+/* ── Spine shadow — left and right pages ─────── */
+.page-spine-shadow {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 28px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.page-spine-shadow--right {
+    left: 0;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.12) 0%, rgba(0, 0, 0, 0.04) 50%, transparent 100%);
+}
+
+.page-spine-shadow--left {
+    right: 0;
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.12) 0%, rgba(0, 0, 0, 0.04) 50%, transparent 100%);
+}
+
+/* ── Theme overrides ─────────────────────────── */
+.book-page--dark {
+    background-color: #1b1a27;
+    color: #d9d5ef;
+    border-color: rgba(255, 255, 255, 0.025);
+}
+
+.book-page--dark .page-grain {
+    opacity: 0.018;
+}
+
+.book-page--dark .page-spine-shadow--right {
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.08) 60%, transparent 100%);
+}
+
+.book-page--dark .page-spine-shadow--left {
+    background: linear-gradient(to left, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.08) 60%, transparent 100%);
+}
+
+.book-page--light {
+    background-color: #fefdfb;
     color: #2c2a3a;
-    border-color: rgba(0, 0, 0, 0.05);
-    box-shadow: inset -4px 0px 10px rgba(0, 0, 0, 0.04), inset 4px 0px 10px rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.04);
+}
+
+.book-page--light .page-grain {
+    opacity: 0.04;
+}
+
+.book-page--sepia {
+    background-color: #f8f0e0;
+    color: #4a3827;
+    border-color: rgba(120, 90, 50, 0.06);
+}
+
+.book-page--sepia .page-grain {
+    opacity: 0.05;
+}
+
+.book-page--sepia .page-spine-shadow--right {
+    background: linear-gradient(to right, rgba(120, 80, 20, 0.12) 0%, rgba(120, 80, 20, 0.04) 55%, transparent 100%);
+}
+
+.book-page--sepia .page-spine-shadow--left {
+    background: linear-gradient(to left, rgba(120, 80, 20, 0.12) 0%, rgba(120, 80, 20, 0.04) 55%, transparent 100%);
 }
 
 .page-content {
     flex: 1;
     overflow: hidden;
+    position: relative;
+    z-index: 3;
 }
 
 .page-content p {
-    margin-bottom: 1.4em !important;
+    margin-bottom: 1.35em !important;
+    text-indent: 1.6em;
+}
+
+.page-content p:first-child {
+    text-indent: 0;
 }
 
 .page-footer {
-    text-align: center;
-    font-size: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    font-size: 0.75rem;
     font-weight: 600;
-    opacity: 0.4;
-    margin-top: 15px;
-    font-family: monospace;
+    opacity: 0.35;
+    font-family: Georgia, serif;
+    letter-spacing: 0.04em;
+    position: relative;
+    z-index: 3;
+}
+
+.page-footer::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.12;
 }
 
 /* ─── Reader Sepia Theme ────────────── */
