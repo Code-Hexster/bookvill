@@ -23,6 +23,7 @@ app.use("/api/categories", require("./routes/categoryRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/chapters", require("./routes/chapterRoutes"));
 app.use("/api/bookmarks", require("./routes/bookmarkRoutes"));
+app.use("/api/admin", require("./routes/adminRoutes"));
 
 // ─── Health check ────────────────────────────────────────────
 app.get("/", (req, res) => {

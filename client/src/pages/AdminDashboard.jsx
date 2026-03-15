@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { fetchAllBooks, createBook, createChapter } from "../services/api";
+import AdminAnalytics from "../components/AdminAnalytics";
 import "./AdminDashboard.css";
 
 function AdminDashboard() {
-    const [tab, setTab] = useState("book"); // "book" or "chapter"
+    const [tab, setTab] = useState("analytics"); // "book", "chapter", or "analytics"
     const [books, setBooks] = useState([]);
 
     // Status
@@ -97,6 +98,9 @@ function AdminDashboard() {
                 <button className={`admin-tab ${tab === "chapter" ? "active" : ""}`} onClick={() => setTab("chapter")}>
                     📑 Upload Chapter
                 </button>
+                <button className={`admin-tab ${tab === "analytics" ? "active" : ""}`} onClick={() => setTab("analytics")}>
+                    📈 Platform Analytics
+                </button>
             </div>
 
             {message.text && (
@@ -183,6 +187,8 @@ function AdminDashboard() {
                     </button>
                 </form>
             )}
+
+            {tab === "analytics" && <AdminAnalytics />}
         </div>
     );
 }

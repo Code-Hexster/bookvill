@@ -163,3 +163,13 @@ export const deleteBookmark = async (bookId) => {
     return data;
 };
 
+// ── Admin Analytics ───────────────────────────────────────────
+export const fetchAnalytics = async () => {
+    const res = await fetch(`${API_BASE}/admin/analytics`, {
+        headers: authHeaders(),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to fetch analytics");
+    return data;
+};
+
