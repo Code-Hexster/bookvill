@@ -1,6 +1,8 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const helmet = require("helmet");
+const compression = require("compression");
 const connectDB = require("./config/db");
 
 // Load environment variables
@@ -12,7 +14,12 @@ connectDB();
 const app = express();
 
 // ─── Middleware ──────────────────────────────────────────────
-app.use(cors());
+app.use(helmet()); // Security headers
+app.use(compression()); // Gzip compression
+app.use(cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -37,8 +44,13 @@ app.use((req, res) => {
 
 // ─── Global Error Handler ────────────────────────────────────
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ message: "Something went wrong!", error: err.message });
+    if (process.env.NODE_ENV !== "production") {
+        console.error(err.stack);
+    }
+    res.status(err.status || 500).json({
+        message: err.message || "Something went wrong!",
+        error: process.env.NODE_ENV === "production" ? null : err.message
+    });
 });
 
 // ─── Start Server ────────────────────────────────────────────

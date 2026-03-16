@@ -1,5 +1,5 @@
 // Central API service — all backend calls go through here
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:5000/api";
 
 // ── Helpers ───────────────────────────────────────────────────
 const getToken = () => localStorage.getItem("bookvill_token");
