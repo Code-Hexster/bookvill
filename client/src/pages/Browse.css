@@ -1,0 +1,143 @@
+.browse-page {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.browse-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.browse-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, var(--accent), #f06);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.browse-header p {
+    opacity: 0.6;
+}
+
+.browse-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    background: var(--bg-card);
+    padding: 1.5rem;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 2rem;
+}
+
+.search-bar-large {
+    display: flex;
+    gap: 1rem;
+}
+
+.search-bar-large input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 1rem;
+}
+
+.search-bar-large button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 0 2rem;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.search-bar-large button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(124, 106, 247, 0.4);
+}
+
+.filters-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.filters-row select {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text);
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    outline: none;
+    cursor: pointer;
+}
+
+.results-count {
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+    font-size: 0.9rem;
+}
+
+.browse-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.browse-loading {
+    padding: 5rem 0;
+    text-align: center;
+}
+
+.empty-browse {
+    text-align: center;
+    padding: 5rem 0;
+}
+
+.empty-browse p {
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 2rem 0;
+}
+
+.pagination button {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text);
+    padding: 0.5rem 1.5rem;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.pagination button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+    .search-bar-large {
+        flex-direction: column;
+    }
+
+    .filters-row {
+        flex-wrap: wrap;
+    }
+
+    .filters-row select {
+        flex: 1;
+    }
+}

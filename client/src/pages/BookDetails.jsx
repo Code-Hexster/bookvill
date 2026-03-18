@@ -136,12 +136,12 @@ function BookDetails() {
                                 <button className="btn-primary" onClick={() => navigate(`/read/${book._id || book.id}/${bookmark.lastChapterNumber}`)}>
                                     Continue Reading (Ch. {bookmark.lastChapterNumber})
                                 </button>
-                                <button className="btn-secondary" onClick={() => navigate(`/read/${book._id || book.id}/1`)}>
-                                    Start from Ch. 1
+                                <button className="btn-secondary" onClick={() => navigate(`/read/${book._id || book.id}/${book.chapters?.[0]?.chapterNumber || 1}`)}>
+                                    Start from Beginning
                                 </button>
                             </>
                         ) : (
-                            <button className="btn-primary" onClick={() => navigate(`/read/${book._id || book.id}/1`)}>
+                            <button className="btn-primary" onClick={() => navigate(`/read/${book._id || book.id}/${book.chapters?.[0]?.chapterNumber || 1}`)}>
                                 Start Reading
                             </button>
                         )}

@@ -31,7 +31,7 @@
 }
 
 .logo-text {
-    background: linear-gradient(135deg, #7c6af7, #f768a1);
+    background: linear-gradient(135deg, var(--accent), #f06);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -122,6 +122,36 @@
 
 @media (max-width: 540px) {
     .user-name {
+        display: none;
+    }
+}
+
+/* ─── Search ────────────────────────────────────────── */
+.nav-search {
+    margin-left: 10px;
+    position: relative;
+}
+
+.nav-search input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 6px 15px;
+    color: var(--text);
+    font-size: 0.85rem;
+    width: 140px;
+    transition: width 0.3s, background 0.3s;
+}
+
+.nav-search input:focus {
+    width: 200px;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent);
+    outline: none;
+}
+
+@media (max-width: 850px) {
+    .nav-search {
         display: none;
     }
 }

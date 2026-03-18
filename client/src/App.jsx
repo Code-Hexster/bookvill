@@ -10,6 +10,7 @@ import BookDetails from "./pages/BookDetails";
 import Reader from "./pages/Reader";
 import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
+import Browse from "./pages/Browse";
 import "./App.css";
 
 function App() {
@@ -29,6 +30,15 @@ function App() {
             element={
               <PrivateRoute>
                 <Library />
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/browse"
+            element={
+              <PrivateRoute>
+                <Browse />
               </PrivateRoute>
             }
           />

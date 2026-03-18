@@ -34,7 +34,7 @@ function Reader() {
     const [loading, setLoading] = useState(true);
     const [initialPage, setInitialPage] = useState(0);
 
-    const currentChapter = parseInt(chapterNumber) || 1;
+    const currentChapter = parseFloat(chapterNumber) || 1;
 
     const loadChapterAndProgress = useCallback(async () => {
         setLoading(true);

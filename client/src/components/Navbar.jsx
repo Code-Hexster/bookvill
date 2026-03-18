@@ -12,6 +12,15 @@ function Navbar() {
         navigate("/");
     };
 
+    const handleSearch = (e) => {
+        e.preventDefault();
+        const q = e.target.q.value;
+        if (q.trim()) {
+            navigate(`/browse?q=${encodeURIComponent(q)}`);
+            e.target.reset();
+        }
+    };
+
     return (
         <nav className="navbar">
             <Link to="/" className="navbar-logo">
@@ -28,6 +37,9 @@ function Navbar() {
                         <Link to="/library" className={`nav-link ${location.pathname === "/library" ? "active" : ""}`}>
                             Library
                         </Link>
+                        <Link to="/browse" className={`nav-link ${location.pathname === "/browse" ? "active" : ""}`}>
+                            Browse
+                        </Link>
                         <Link to="/profile" className={`nav-link ${location.pathname === "/profile" ? "active" : ""}`}>
                             Profile
                         </Link>
@@ -38,6 +50,9 @@ function Navbar() {
                         )}
                     </>
                 )}
+                <form className="nav-search" onSubmit={handleSearch}>
+                    <input type="text" name="q" placeholder="Search..." />
+                </form>
             </div>
 
             <div className="navbar-auth">

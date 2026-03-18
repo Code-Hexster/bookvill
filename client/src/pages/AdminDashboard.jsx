@@ -62,7 +62,7 @@ function AdminDashboard() {
             if (!bookId) throw new Error("Please select a book.");
 
             const payload = {
-                chapterNumber: parseInt(chapterForm.chapterNumber),
+                chapterNumber: parseFloat(chapterForm.chapterNumber),
                 title: chapterForm.title,
                 content: chapterForm.content || null,
                 pages: chapterForm.pages ? chapterForm.pages.split("\n").map(l => l.trim()).filter(Boolean) : []
@@ -72,7 +72,7 @@ function AdminDashboard() {
             handleMessage(`Chapter ${payload.chapterNumber} added successfully!`);
             setChapterForm({
                 ...chapterForm,
-                chapterNumber: parseInt(chapterForm.chapterNumber) + 1,
+                chapterNumber: parseFloat(chapterForm.chapterNumber) + 1,
                 title: "",
                 content: "",
                 pages: ""

@@ -57,25 +57,63 @@ const LazyImage = memo(({ src, index, alt }) => {
 LazyImage.displayName = "LazyImage";
 
 // ── Main MangaReader Component ───────────────────────────────────
-function MangaReader({ data, bookId, currentChapter, chaptersList, onNavigate, onBack }) {
+function MangaReader({ data, initialPage, bookId, currentChapter, chaptersList, onNavigate, onBack }) {
     const chapter = data?.chapter;
     const nav = data?.navigation;
     const pages = chapter?.pages || [];
 
     const [isDistractionFree, setIsDistractionFree] = useState(false);
     const [readingProgress, setReadingProgress] = useState(0);
+    const [currentPage, setCurrentPage] = useState(initialPage || 0);
     const [showToolbar, setShowToolbar] = useState(true);
 
+    const containerRef = useRef(null);
     const saveTimerRef = useRef(null);
-    const scrollTimerRef = useRef(null);
     const toolbarTimerRef = useRef(null);
     const lastScrollY = useRef(0);
+
+    // ── Restore initial page on load ───────────────────────────────
+    useEffect(() => {
+        if (initialPage > 0) {
+            // Give time for images to at least start rendering
+            setTimeout(() => {
+                const pageEl = document.getElementById(`manga-page-${initialPage}`);
+                if (pageEl) {
+                    pageEl.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+            }, 500);
+        }
+    }, [initialPage]);
 
     // ── Scroll-driven progress + auto-hide toolbar ───────────────
     const handleScroll = useCallback(() => {
         const h = document.documentElement;
         const scrolled = (h.scrollTop + h.clientHeight) / h.scrollHeight;
         setReadingProgress(Math.min(100, Math.max(0, scrolled * 100)));
+
+        // Track current page based on scroll
+        const pageElements = document.querySelectorAll(".manga-image-container");
+        let activePage = 0;
+        for (let i = 0; i < pageElements.length; i++) {
+            const rect = pageElements[i].getBoundingClientRect();
+            if (rect.top < window.innerHeight / 2) {
+                activePage = i;
+            } else {
+                break;
+            }
+        }
+        if (activePage !== currentPage) {
+            setCurrentPage(activePage);
+            // Debounced save
+            if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+            saveTimerRef.current = setTimeout(() => {
+                saveProgress(bookId, {
+                    lastChapterNumber: currentChapter,
+                    chapterId: chapter?._id || null,
+                    position: { page: activePage }
+                });
+            }, 2000);
+        }
 
         // Auto-hide toolbar when scrolling down quickly
         const currentY = h.scrollTop;
@@ -89,7 +127,7 @@ function MangaReader({ data, bookId, currentChapter, chaptersList, onNavigate, o
         // Debounced auto-reveal toolbar after scroll stops
         if (toolbarTimerRef.current) clearTimeout(toolbarTimerRef.current);
         toolbarTimerRef.current = setTimeout(() => setShowToolbar(true), 1200);
-    }, []);
+    }, [currentPage, bookId, currentChapter, chapter?._id]);
 
     useEffect(() => {
         window.addEventListener("scroll", handleScroll, { passive: true });
@@ -99,20 +137,11 @@ function MangaReader({ data, bookId, currentChapter, chaptersList, onNavigate, o
         };
     }, [handleScroll]);
 
-    // ── Save progress once on mount (chapter level) ──────────────
-    useEffect(() => {
-        saveTimerRef.current = setTimeout(() => {
-            saveProgress(bookId, {
-                lastChapterNumber: currentChapter,
-                chapterId: chapter?._id || null,
-            }).catch(() => { });
-        }, 1500); // Small delay — don't block initial render
-
-        return () => saveTimerRef.current && clearTimeout(saveTimerRef.current);
-    }, [bookId, currentChapter, chapter?._id]);
-
-    // ── Cleanup scroll timer ─────────────────────────────────────
-    useEffect(() => () => scrollTimerRef.current && clearTimeout(scrollTimerRef.current), []);
+    // ── Cleanup timers ───────────────────────────────────────────
+    useEffect(() => () => {
+        if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+        if (toolbarTimerRef.current) clearTimeout(toolbarTimerRef.current);
+    }, []);
 
     const toggleFullScreen = useCallback(() => {
         if (!document.fullscreenElement) {
@@ -197,12 +226,13 @@ function MangaReader({ data, bookId, currentChapter, chaptersList, onNavigate, o
             <div className="manga-scroll-content">
                 {pages.length > 0 ? (
                     pages.map((url, idx) => (
-                        <LazyImage
-                            key={`${currentChapter}-${idx}`}
-                            src={url}
-                            index={idx}
-                            alt={`Page ${idx + 1}`}
-                        />
+                        <div key={`${currentChapter}-${idx}`} id={`manga-page-${idx}`} className="manga-page-anchor">
+                            <LazyImage
+                                src={url}
+                                index={idx}
+                                alt={`Page ${idx + 1}`}
+                            />
+                        </div>
                     ))
                 ) : (
                     <div className="manga-empty">
