@@ -24,7 +24,7 @@ function Navbar() {
     return (
         <nav className="navbar">
             <Link to="/" className="navbar-logo">
-                <span className="logo-icon">📚</span>
+                <img src="/favicon.png" alt="BookVill Logo" className="logo-img" />
                 <span className="logo-text">BookVill</span>
             </Link>
 

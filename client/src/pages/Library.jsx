@@ -28,7 +28,7 @@ function Library() {
                 const newData = await fetchBooks({ sort: "newest", limit: 6 });
                 setNewest(newData.books || []);
             } catch (err) {
-                console.error("Failed to load library dashboard:", err);
+                // Silently handle load errors
             } finally {
                 setLoading(false);
             }

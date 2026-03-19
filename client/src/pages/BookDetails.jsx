@@ -49,7 +49,6 @@ function BookDetails() {
             } catch (e) { }
 
         } catch (err) {
-            console.error(err);
             if (bookId.length < 10) {
                 setBook({ ...MOCK_BOOK, _id: bookId });
             } else {
