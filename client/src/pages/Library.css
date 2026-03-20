@@ -1,295 +1,500 @@
-/* ─── Library Page ─────────────────────────────────────── */
-.library-container {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 40px clamp(16px, 4vw, 48px);
-    color: var(--text);
-}
-
-.library-title {
-    font-size: clamp(1.6rem, 3vw, 2.2rem);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    margin-bottom: 36px;
-}
-
-/* ─── Section Headers ─────────────────────────────────── */
-.book-grid-section {
-    margin-bottom: 52px;
-}
-
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--border);
-}
-
-.section-subtitle {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin: 0;
-    letter-spacing: -0.01em;
-}
-
-.btn-view-all {
-    background: transparent;
-    border: none;
-    color: var(--accent);
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 0.88rem;
-    padding: 5px 10px;
-    border-radius: var(--radius-sm);
-    transition: background var(--transition);
-    font-family: var(--font);
-}
-
-.btn-view-all:hover {
-    background: rgba(124, 106, 247, 0.1);
-}
-
-/* ─── Horizontal Scroll ───────────────────────────────── */
-.horizontal-scroll {
-    display: flex;
-    gap: 18px;
-    overflow-x: auto;
-    padding-bottom: 12px;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-}
-
-.horizontal-scroll::-webkit-scrollbar {
-    height: 5px;
-}
-
-.horizontal-scroll::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 4px;
-}
-
-.horizontal-scroll::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.horizontal-scroll .book-card {
-    min-width: 160px;
-    max-width: 160px;
-    scroll-snap-align: start;
-    flex-shrink: 0;
-}
-
-/* ─── Book Card ───────────────────────────────────────── */
-.book-card {
-    background: var(--bg-card);
-    border-radius: var(--radius);
-    overflow: hidden;
-    cursor: pointer;
-    border: 1px solid transparent;
-    transition: transform 0.22s var(--ease), box-shadow 0.22s var(--ease), border-color 0.22s;
+/* ── Library Layout ─────────────────────────────────────────── */
+.lib-layout {
+    min-height: 100vh;
+    background: #f0f2f8;
     display: flex;
     flex-direction: column;
 }
 
-.book-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
-    border-color: rgba(124, 106, 247, 0.25);
+/* ── Top Bar ─────────────────────────────────────────────────── */
+.lib-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    background: #f0f2f8;
+    position: sticky;
+    top: 0;
+    z-index: 50;
 }
 
-.book-cover-wrapper {
+.lib-search-wrap {
     position: relative;
-    width: 100%;
-    aspect-ratio: 2/3;
-    overflow: hidden;
-    background: var(--bg-card-hover);
+    flex: 1;
+    max-width: 460px;
 }
 
-.book-cover {
+.lib-search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    stroke: #9ca3af;
+}
+
+.lib-search-input {
+    width: 100%;
+    padding: 10px 14px 10px 42px;
+    border-radius: 12px;
+    border: 1.5px solid #e5e7eb;
+    background: #fff;
+    font-size: 14px;
+    color: #374151;
+    outline: none;
+    transition: border-color 0.2s;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.lib-search-input:focus {
+    border-color: #6366f1;
+}
+
+.lib-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 20px;
+}
+
+.lib-icon-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    transition: background 0.2s;
+}
+
+.lib-icon-btn:hover {
+    background: #f3f4f6;
+}
+
+.lib-icon-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke: #6b7280;
+}
+
+.lib-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #e0e7ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.lib-avatar svg {
+    width: 20px;
+    height: 20px;
+    stroke: #6366f1;
+}
+
+/* ── Body ────────────────────────────────────────────────────── */
+.lib-body {
+    display: flex;
+    gap: 24px;
+    padding: 0 28px 28px;
+    flex: 1;
+    align-items: flex-start;
+}
+
+/* ── Center Panel ─────────────────────────────────────────────── */
+.lib-center {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Tabs */
+.lib-tabs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.lib-tab {
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: 1.5px solid #e5e7eb;
+    background: #fff;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.lib-tab:hover {
+    border-color: #6366f1;
+    color: #6366f1;
+}
+
+.lib-tab.active {
+    background: #1e293b;
+    border-color: #1e293b;
+    color: #fff;
+    font-weight: 600;
+}
+
+.lib-tab-next {
+    margin-left: auto;
+    background: none;
+    border: none;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #6366f1;
+    cursor: pointer;
+    padding: 6px 10px;
+}
+
+.lib-tab-next:hover {
+    opacity: 0.7;
+}
+
+/* Book Grid */
+.lib-book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+.lib-book-card {
+    background: transparent;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: transform 0.2s;
+}
+
+.lib-book-card:hover {
+    transform: translateY(-3px);
+}
+
+.lib-book-cover-wrap {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    aspect-ratio: 2/3;
+}
+
+.lib-book-cover {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.4s var(--ease);
     display: block;
 }
 
-.book-card:hover .book-cover {
-    transform: scale(1.06);
-}
-
-.book-format-badge {
+.lib-book-format {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(0, 0, 0, 0.75);
+    bottom: 6px;
+    left: 6px;
+    background: rgba(0, 0, 0, 0.6);
     color: #fff;
-    padding: 3px 8px;
-    border-radius: 20px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    backdrop-filter: blur(6px);
-    letter-spacing: 0.3px;
-    text-transform: uppercase;
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    text-transform: capitalize;
 }
 
-.book-info {
-    padding: 12px 14px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex: 1;
-}
-
-.book-title {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin: 0;
-}
-
-.book-author {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    margin: 0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* ─── Continue Reading Banner ─────────────────────────── */
-.continue-reading-section {
-    margin-bottom: 52px;
-}
-
-.continue-cards-wrapper {
-    display: flex;
-    gap: 18px;
-    overflow-x: auto;
-    padding-bottom: 8px;
-    -webkit-overflow-scrolling: touch;
-}
-
-.continue-card {
-    position: relative;
-    min-width: 280px;
-    height: 145px;
-    border-radius: var(--radius);
-    overflow: hidden;
-    cursor: pointer;
-    border: 1px solid var(--border);
-    flex: 1;
-    max-width: 380px;
-    transition: transform 0.22s var(--ease), box-shadow 0.22s var(--ease);
-}
-
-.continue-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
-}
-
-.continue-card:hover .continue-card-bg {
-    transform: scale(1.06);
-}
-
-.continue-card-bg {
-    position: absolute;
-    inset: 0;
-    background-size: cover;
-    background-position: center;
-    transition: transform 0.4s var(--ease);
-    filter: brightness(0.35);
-}
-
-.continue-card-content {
-    position: absolute;
-    inset: 0;
-    padding: 18px 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    z-index: 2;
-}
-
-.continue-text h3 {
-    margin: 0 0 5px;
-    color: #fff;
-    font-size: 1.05rem;
-    font-weight: 700;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
-}
-
-.continue-text p {
-    margin: 0;
-    color: var(--accent);
+.lib-book-title {
+    margin-top: 8px;
+    font-size: 12.5px;
     font-weight: 600;
-    font-size: 0.85rem;
-}
-
-.btn-continue {
-    align-self: flex-start;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    padding: 7px 18px;
-    border-radius: 6px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    cursor: pointer;
-    font-family: var(--font);
-    transition: background var(--transition), transform var(--transition);
-}
-
-.btn-continue:hover {
-    background: #6a57e6;
-    transform: translateY(-2px);
-}
-
-/* ─── Loading Skeleton Cards ──────────────────────────── */
-.book-card-skeleton {
-    background: var(--bg-card);
-    border-radius: var(--radius);
+    color: #1e293b;
+    white-space: nowrap;
     overflow: hidden;
-    min-width: 160px;
-    max-width: 160px;
-    flex-shrink: 0;
-    border: 1px solid var(--border);
+    text-overflow: ellipsis;
 }
 
-.book-card-skeleton .skeleton-cover {
+.lib-book-author {
+    font-size: 11.5px;
+    color: #6b7280;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Skeleton */
+.skeleton-card {}
+
+.lib-cover-skel {
     aspect-ratio: 2/3;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
 }
 
-.book-card-skeleton .skeleton-info {
-    padding: 12px 14px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+.lib-title-skel {
+    height: 12px;
+    margin-top: 8px;
+    border-radius: 6px;
+    width: 80%;
+    background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
 }
 
-/* ─── Empty State ─────────────────────────────────────── */
-.library-empty {
-    padding: 30px;
-    background: var(--bg-card);
-    border-radius: var(--radius);
-    border: 1px dashed var(--border);
-    text-align: center;
-    color: var(--text-muted);
-    font-size: 0.9rem;
+.lib-author-skel {
+    height: 10px;
+    margin-top: 6px;
+    border-radius: 6px;
+    width: 55%;
+    background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
 }
 
-/* ─── Responsive ──────────────────────────────────────── */
-@media (max-width: 768px) {
-    .continue-card {
-        min-width: 260px;
+@keyframes shimmer {
+    0% {
+        background-position: 200% center;
     }
 
-    .horizontal-scroll .book-card {
-        min-width: 140px;
-        max-width: 140px;
+    100% {
+        background-position: -200% center;
+    }
+}
+
+/* Continue Reading */
+.lib-continue-section {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.lib-section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 14px;
+}
+
+.lib-continue-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f3f4f6;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.lib-continue-row:last-child {
+    border-bottom: none;
+}
+
+.lib-continue-row:hover {
+    opacity: 0.75;
+}
+
+.lib-continue-thumb {
+    width: 40px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.lib-continue-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.lib-continue-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.lib-continue-meta {
+    font-size: 11.5px;
+    color: #9ca3af;
+    margin-top: 2px;
+}
+
+.lib-progress-bar {
+    height: 5px;
+    background: #e5e7eb;
+    border-radius: 99px;
+    margin-top: 6px;
+    overflow: hidden;
+}
+
+.lib-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    border-radius: 99px;
+    transition: width 0.6s ease;
+}
+
+.lib-continue-pct {
+    font-size: 12px;
+    font-weight: 600;
+    color: #3b5bdb;
+    flex-shrink: 0;
+}
+
+/* ── Right Panel ─────────────────────────────────────────────── */
+.lib-right {
+    width: 260px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.lib-widget {
+    background: #fff;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.lib-widget-title {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 14px;
+}
+
+/* Authors */
+.lib-authors-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.lib-author-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.lib-author-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.lib-author-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lib-follow-btn {
+    padding: 5px 12px;
+    border-radius: 8px;
+    border: 1.5px solid #e5e7eb;
+    background: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.18s;
+    flex-shrink: 0;
+}
+
+.lib-follow-btn:hover {
+    border-color: #6366f1;
+    color: #6366f1;
+}
+
+.lib-follow-btn.following {
+    background: #1e293b;
+    border-color: #1e293b;
+    color: #fff;
+}
+
+/* Blogs */
+.lib-blogs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.lib-blog-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.lib-blog-img {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.lib-blog-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.lib-blog-title {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.4;
+}
+
+.lib-blog-author {
+    font-size: 11.5px;
+    color: #9ca3af;
+    margin-top: 2px;
+}
+
+.lib-blog-stats {
+    display: flex;
+    gap: 10px;
+    font-size: 11.5px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .lib-right {
+        display: none;
+    }
+
+    .lib-body {
+        padding: 0 16px 24px;
+    }
+}
+
+@media (max-width: 640px) {
+    .lib-book-grid {
+        grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+        gap: 12px;
     }
 }

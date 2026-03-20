@@ -1,0 +1,104 @@
+/* ── Sidebar ─────────────────────────────────────────────── */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 200px;
+    background: #fff;
+    border-right: 1px solid #eef0f4;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 16px;
+    z-index: 100;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
+}
+
+/* Logo */
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 8px 28px;
+    border-bottom: 1px solid #f0f2f7;
+    margin-bottom: 20px;
+}
+
+.sidebar-logo-icon img {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+}
+
+.sidebar-logo-text {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a1d2e;
+    letter-spacing: 0.3px;
+}
+
+/* Nav */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    color: #6b7280;
+    font-size: 14.5px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    transition: all 0.18s ease;
+}
+
+.sidebar-link svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    transition: stroke 0.18s;
+}
+
+.sidebar-link:hover {
+    background: #f3f4f8;
+    color: #3b5bdb;
+}
+
+.sidebar-link:hover svg {
+    stroke: #3b5bdb;
+}
+
+.sidebar-link.active {
+    background: #eef2ff;
+    color: #3b5bdb;
+    font-weight: 600;
+}
+
+.sidebar-link.active svg {
+    stroke: #3b5bdb;
+}
+
+/* Logout */
+.sidebar-logout {
+    margin-top: 8px;
+    color: #ef4444;
+}
+
+.sidebar-logout:hover {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.sidebar-logout svg {
+    stroke: currentColor;
+}

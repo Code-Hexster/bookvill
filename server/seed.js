@@ -158,12 +158,12 @@ async function seed() {
     console.log("\n👤 Seeding demo user...");
     const existingAdmin = await User.findOne({ email: "admin@bookvill.com" });
     if (!existingAdmin) {
-        const hashed = await bcrypt.hash("Admin1234", 10);
         await User.create({
             username: "BookVill Admin",
             email: "admin@bookvill.com",
-            password: hashed,
+            password: "Admin1234",
             isAdmin: true,
+            role: "admin",
         });
         console.log("   • admin@bookvill.com created (password: Admin1234)");
     } else {

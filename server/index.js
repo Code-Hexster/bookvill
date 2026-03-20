@@ -14,14 +14,26 @@ connectDB();
 const app = express();
 
 // ─── Middleware ──────────────────────────────────────────────
-app.use(helmet()); // Security headers
-app.use(compression()); // Gzip compression
 app.use(cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
     credentials: true
 }));
+
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: false,
+}));
+app.use(compression()); // Gzip compression
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Crash logging (production-safe)
+process.on("uncaughtException", (err) => {
+    if (process.env.NODE_ENV !== "production") console.error("🔥 Uncaught Exception:", err);
+});
+process.on("unhandledRejection", (reason) => {
+    if (process.env.NODE_ENV !== "production") console.error("🔥 Unhandled Rejection at:", reason);
+});
 
 // ─── Routes ─────────────────────────────────────────────────
 app.use("/api/auth", require("./routes/authRoutes"));
@@ -55,6 +67,6 @@ app.use((err, req, res, next) => {
 
 // ─── Start Server ────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

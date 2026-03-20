@@ -1,47 +1,19 @@
-/* ─── App.css — layout wrappers & page transitions ─────────── */
-/* Global tokens live in index.css; do NOT redefine them here */
-
-/* ─── Page Wrapper ────────────────────────────────────────── */
-#root {
-  display: flex;
-  flex-direction: column;
+/* ── App Shell ─────────────────────────────────────────────── */
+.app-shell {
   min-height: 100vh;
+  background: #f0f2f8;
 }
 
-main {
-  flex: 1;
-}
-
-/* ─── Common Page Container ───────────────────────────────── */
-.page {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 40px clamp(16px, 4vw, 48px);
-}
-
-.page-wide {
-  max-width: 1300px;
-  margin: 0 auto;
-  padding: 40px clamp(16px, 4vw, 48px);
-}
-
-/* ─── Section Headings ────────────────────────────────────── */
-.section-header {
+.app-shell.with-sidebar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
 }
 
-.section-title {
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--text);
+.app-shell.no-sidebar .app-main {
+  width: 100%;
 }
 
-.section-subtitle {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  margin-top: 4px;
+.app-shell.with-sidebar .app-main {
+  margin-left: 200px;
+  width: calc(100% - 200px);
+  min-height: 100vh;
 }
