@@ -16,7 +16,7 @@ function Profile() {
             try {
                 const bms = await fetchMyBookmarks();
                 setBookmarks(bms || []);
-            } catch (err) {
+            } catch {
                 // The instruction was to remove console.error calls.
                 // Since there were no console.error calls, and only a "// Silence" comment,
                 // the comment is removed to reflect a complete silencing of the error.

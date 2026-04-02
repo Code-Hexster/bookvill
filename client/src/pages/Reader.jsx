@@ -54,7 +54,7 @@ function Reader() {
                 if (bkmk && bkmk.lastChapterNumber === result.chapter.chapterNumber && bkmk.position?.page) {
                     initPage = bkmk.position.page;
                 }
-            } catch (e) {
+            } catch {
                 // Ignore if bookmark doesn't exist
             }
 
@@ -67,7 +67,9 @@ function Reader() {
                     chapterId: result.chapter._id || null,
                     position: { page: initPage }
                 });
-            } catch { }
+            } catch {
+                // Ignore silent save error
+            }
 
         } catch {
             setData(FALLBACK);

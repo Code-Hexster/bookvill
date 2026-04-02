@@ -46,7 +46,9 @@ function BookDetails() {
             try {
                 const bkmk = await fetchBookmarkByBook(bookId);
                 if (bkmk) setBookmark(bkmk);
-            } catch (e) { }
+            } catch {
+                // Ignore error if bookmark not found
+            }
 
         } catch (err) {
             if (bookId.length < 10) {
@@ -62,6 +64,7 @@ function BookDetails() {
     useEffect(() => {
         setLoading(true);
         loadInfo();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [bookId]);
 
     const handleReviewSubmit = async (e) => {

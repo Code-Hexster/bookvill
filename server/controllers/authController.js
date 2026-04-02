@@ -42,7 +42,7 @@ const register = async (req, res) => {
             token: generateToken(user._id),
         });
     } catch (error) {
-        console.error("Register error:", error.message);
+        console.error("Register error:", error.stack);
         res.status(500).json({ message: "Server error during registration" });
     }
 };
@@ -83,7 +83,7 @@ const login = async (req, res) => {
             token: generateToken(user._id),
         });
     } catch (error) {
-        console.error("Login error:", error.message);
+        console.error("Login error:", error.stack);
         res.status(500).json({ message: "Server error during login" });
     }
 };

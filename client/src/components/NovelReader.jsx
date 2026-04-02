@@ -76,8 +76,9 @@ function NovelReader({ data, initialPage, bookId, currentChapter, chaptersList, 
 
     // ── Computed pages ───────────────────────────────────────────
     const { paragraphs, totalPages, parasPerPage } = useMemo(() => {
-        if (!chapter?.content) return { paragraphs: [], totalPages: 1, parasPerPage: 6 };
-        const paras = chapter.content.split("\n\n").filter(p => p.trim() !== "");
+        const content = chapter?.content;
+        if (!content) return { paragraphs: [], totalPages: 1, parasPerPage: 6 };
+        const paras = content.split("\n\n").filter(p => p.trim() !== "");
         return {
             paragraphs: paras,
             totalPages: Math.max(1, Math.ceil(paras.length / 6)),
@@ -92,7 +93,7 @@ function NovelReader({ data, initialPage, bookId, currentChapter, chaptersList, 
     // ── Restore page on mode switch ──────────────────────────────
     useEffect(() => {
         if (readMode === "paged" && flipBookRef.current?.pageFlip()) {
-            try { flipBookRef.current.pageFlip().turnToPage(pageIndex); } catch (_) { }
+            try { flipBookRef.current.pageFlip().turnToPage(pageIndex); } catch { /* ignore flipbook error */ }
         }
     }, [readMode]); // eslint-disable-line
 
